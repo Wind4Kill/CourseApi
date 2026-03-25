@@ -1,0 +1,15 @@
+/Users/artem/Code/CourseApi/CourseApiServices/obj/Debug/net10.0/CourseApiServices.csproj.AssemblyReference.cache
+/Users/artem/Code/CourseApi/CourseApiServices/obj/Debug/net10.0/CourseApiServices.GeneratedMSBuildEditorConfig.editorconfig
+/Users/artem/Code/CourseApi/CourseApiServices/obj/Debug/net10.0/CourseApiServices.AssemblyInfoInputs.cache
+/Users/artem/Code/CourseApi/CourseApiServices/obj/Debug/net10.0/CourseApiServices.AssemblyInfo.cs
+/Users/artem/Code/CourseApi/CourseApiServices/obj/Debug/net10.0/CourseApiServices.csproj.CoreCompileInputs.cache
+/Users/artem/Code/CourseApi/CourseApiServices/bin/Debug/net10.0/CourseApiServices.deps.json
+/Users/artem/Code/CourseApi/CourseApiServices/bin/Debug/net10.0/CourseApiServices.dll
+/Users/artem/Code/CourseApi/CourseApiServices/bin/Debug/net10.0/CourseApiServices.pdb
+/Users/artem/Code/CourseApi/CourseApiServices/bin/Debug/net10.0/CourseApiDomain.dll
+/Users/artem/Code/CourseApi/CourseApiServices/bin/Debug/net10.0/CourseApiDomain.pdb
+/Users/artem/Code/CourseApi/CourseApiServices/obj/Debug/net10.0/CourseAp.391D1D5B.Up2Date
+/Users/artem/Code/CourseApi/CourseApiServices/obj/Debug/net10.0/CourseApiServices.dll
+/Users/artem/Code/CourseApi/CourseApiServices/obj/Debug/net10.0/refint/CourseApiServices.dll
+/Users/artem/Code/CourseApi/CourseApiServices/obj/Debug/net10.0/CourseApiServices.pdb
+/Users/artem/Code/CourseApi/CourseApiServices/obj/Debug/net10.0/ref/CourseApiServices.dll
