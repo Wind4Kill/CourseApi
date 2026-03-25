@@ -71,8 +71,6 @@
 /Users/artem/Code/CourseApi/CourseApi/obj/Debug/net10.0/CourseApi.pdb
 /Users/artem/Code/CourseApi/CourseApi/obj/Debug/net10.0/CourseApi.genruntimeconfig.cache
 /Users/artem/Code/CourseApi/CourseApi/obj/Debug/net10.0/ref/CourseApi.dll
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.Development.json
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.json
 /Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.deps.json
 /Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.runtimeconfig.json
 /Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.staticwebassets.endpoints.json
@@ -159,18 +157,26 @@
 /Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/tr/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 /Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/zh-Hans/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
 /Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/zh-Hant/Microsoft.CodeAnalysis.Workspaces.MSBuild.resources.dll
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.Development.json
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.json
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.deps.json
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.runtimeconfig.json
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.staticwebassets.endpoints.json
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.Development.json
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.json
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.deps.json
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.runtimeconfig.json
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.staticwebassets.endpoints.json
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.Development.json
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.json
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.deps.json
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.runtimeconfig.json
-/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.staticwebassets.endpoints.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.Development.json 01-19-44-115.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.json 01-19-44-116.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.Development.json 01-19-44-124.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.json 01-19-44-124.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.Development.json 01-19-44-133.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.json 01-19-44-133.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.Development.json 01-19-44-142.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.json 01-19-44-143.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.Development.json 01-19-44-153.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/appsettings.json 01-19-44-153.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.deps.json 01-19-44-143.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.runtimeconfig.json 01-19-44-143.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.staticwebassets.endpoints.json 01-19-44-153.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.deps.json 01-19-44-133.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.runtimeconfig.json 01-19-44-133.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.staticwebassets.endpoints.json 01-19-44-142.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.deps.json 01-19-44-124.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.runtimeconfig.json 01-19-44-125.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.staticwebassets.endpoints.json 01-19-44-133.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.deps.json 01-19-44-116.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.runtimeconfig.json 01-19-44-116.json
+/Users/artem/Code/CourseApi/CourseApi/bin/Debug/net10.0/bin/Debug/net10.0/bin/Debug/net10.0/CourseApi.staticwebassets.endpoints.json 01-19-44-124.json
+/Users/artem/Code/CourseApi/CourseApi/obj/Debug/net10.0/CourseApi.sourcelink.json
