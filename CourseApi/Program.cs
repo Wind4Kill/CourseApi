@@ -35,6 +35,15 @@ app.UseStatusCodePages();
 if (app.Environment.IsProduction())
 {
       app.UseExceptionHandler();
+      await using (var scope = app.Services.CreateAsyncScope())
+      {
+            ApplicationContext _context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
+            
+            if(_context.Database.GetPendingMigrations().Any())
+            {
+                 await _context.Database.MigrateAsync();
+            }
+      }
 }
 
 app.AddCourseEndpoints();
