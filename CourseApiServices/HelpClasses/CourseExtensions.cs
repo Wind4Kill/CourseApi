@@ -37,10 +37,10 @@ public static class CourseExtensions
       {
             int coursesPerPage = 10;
 
-            if (page == 0)
-                  throw new ArgumentException("{nameof(page)} can't be less than 1");
+            if (page < 1)
+                  throw new ArgumentException("{nameof(page)} can't be less than 0");
 
-            return courses.Skip(page * coursesPerPage).Take(coursesPerPage);
+            return courses.Skip(page-1 * coursesPerPage).Take(coursesPerPage);
 
       }
 

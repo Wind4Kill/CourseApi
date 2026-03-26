@@ -10,6 +10,6 @@ public class SortFilterOptions
 
       public string? FilterValue { get; set; } = null;
 
-      public int PageNum { get; set; }
+      public int PageNum { get; set; } = 1;
 
 }
