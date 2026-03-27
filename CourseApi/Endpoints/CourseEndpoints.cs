@@ -53,12 +53,12 @@ public static class CourseEndpoints
                   }
                   catch (ArgumentNullException ex)
                   {
-                        return Results.Problem(detail: ex.Message, statusCode: 404);
+                        return Results.Problem(detail: ex.Message, statusCode: 500);
                   }
 
             });
             
-            
+
 
       }
 
