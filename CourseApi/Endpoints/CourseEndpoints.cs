@@ -21,7 +21,7 @@ public static class CourseEndpoints
                   List<GetCourseDto> courses = await service.GetCourses(options!);
                   return courses is not null ? Results.Ok(courses) :
                   Results.Problem(detail: "Courses haven't been found", statusCode: 404);
-            }).Produces<Ok>().ProducesProblem(statusCode: 404);
+            }).Produces(200).ProducesProblem(statusCode: 404);
 
             builder.MapPost("", async (CreateCourseDto dto, ICourseService service, LinkGenerator generator) =>
             {
@@ -29,8 +29,8 @@ public static class CourseEndpoints
 
                   string? link = generator.GetPathByName("GetCourseById", new { id = dto.CourseId });
 
-                  return affectedRows is not 0 ? Results.Created(link, addedCourse) : Results.Problem(detail: "Course hasn't been added", statusCode: 400);
-            }).WithParameterValidation().Produces<Ok>().ProducesProblem(statusCode: 400);
+                  return affectedRows is > 0 ? Results.Created(link, addedCourse) : Results.Problem(detail: "Course hasn't been added", statusCode: 400);
+            }).WithParameterValidation().Produces(201).ProducesProblem(statusCode: 400);
 
             builder.MapGet("{id:int}", async (ICourseService service, int id) =>
             {
@@ -39,7 +39,7 @@ public static class CourseEndpoints
                   return requestedCourse is null ?
                   Results.Problem(detail: "Requested course is not found", statusCode: 400)
                   : Results.Ok(requestedCourse);
-            }).Produces<Ok>().ProducesProblem(statusCode: 400).WithName("GetCourseById");
+            }).Produces(204).ProducesProblem(statusCode: 400).WithName("GetCourseById");
 
             builder.MapDelete("{id:int}", async (int id, ICourseService service) =>
             {
@@ -60,10 +60,20 @@ public static class CourseEndpoints
 
             builder.MapPatch("", async (UpdateCourseDto updatedCourse, ICourseService service) =>
             {
-                  await service.UpdateCourse(updatedCourse);
-            });
-            
-            
+                  try
+                  {
+                        int affectedRows = await service.UpdateCourse(updatedCourse);
+
+                        return affectedRows is > 0 ? Results.NoContent() :
+                        Results.Problem(detail: "Entity couldn't be updated", statusCode: 400);
+
+                  }
+                  catch (ArgumentNullException ex)
+                  {
+                        return Results.Problem(detail: ex.Message, statusCode: 500);
+                  }
+
+            }).WithParameterValidation().Produces(204).ProducesProblem(400);
 
 
       }

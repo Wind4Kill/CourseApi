@@ -98,7 +98,7 @@ public class CourseService : ICourseService
 
             if (requiredCourse is null)
             {
-                  throw new Exception("Course hasn't been found");
+                  throw new ArgumentNullException("Course hasn't been found");
             }
 
             if (!updateCourseDto.CourseName.Equals(requiredCourse.CourseName) && !string.IsNullOrEmpty(updateCourseDto.CourseName))
