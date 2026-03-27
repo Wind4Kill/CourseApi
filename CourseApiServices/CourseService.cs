@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using CourseApiDomain;
 using CourseApiDomain.Entities;
+using CourseApiServices.Dtos.AuthorDtos;
 using CourseApiServices.Dtos.CourseDtos;
 using CourseApiServices.Interfaces;
 using CourseApiServices.Interfaces.HelpClasses;
@@ -13,11 +14,11 @@ namespace CourseApiServices;
 
 public class CourseService : ICourseService
 {
-      ApplicationContext _context;
+      ICourseRepository _repository;
 
-      public CourseService(ApplicationContext context)
+      public CourseService(ICourseRepository repository)
       {
-            _context = context;
+            _repository = repository;
       }
 
       public async Task<(int, string)> CreateCourse(CreateCourseDto dto)
@@ -26,7 +27,11 @@ public class CourseService : ICourseService
             {
                   CourseId = dto.CourseId,
                   CourseName = dto.CourseName,
-                  CourseDetails = new CourseDetails() { CourseDescription = dto.CourseDescription, CoursePrice = dto.CoursePrice },
+                  CourseDetails = new CourseDetails()
+                  {
+                        CourseDescription = dto.CourseDescription,
+                        CoursePrice = dto.CoursePrice
+                  },
                   Authors = dto.Authors.
                   Select(dto => new Author()
                   {
@@ -42,116 +47,60 @@ public class CourseService : ICourseService
 
             };
 
-            _context.Courses.Add(addedCourse);
+            int affectedRows = await _repository.AddCourse(addedCourse);
 
-            int affectedRows = await _context.SaveChangesAsync();
             return (affectedRows, addedCourse.CourseName);
       }
 
       public async Task<List<GetCourseDto>> GetCourses(SortFilterOptions options)
       {
-            List<GetCourseDto> courses = await _context.Courses.AsNoTracking().
-            SortCourses(options.Sorting).
-            FilterCourses(options.Filter, options.FilterValue).
-            PaginatePage(options.PageNum).Select(c => new GetCourseDto
+            List<GetCourseDto> courses = (await _repository.GetCourses(options)).Select(c => new GetCourseDto
             {
                   CourseId = c.CourseId,
                   CourseName = c.CourseName,
                   CoursePrice = c.CourseDetails.CoursePrice,
                   CourseRating = c.CourseRating
-            }).
-            ToListAsync();
+            }).ToList();
 
             return courses;
       }
 
       public async Task<GetCourseByIdDto?> GetCourseById(int id)
       {
-            GetCourseByIdDto? requiredCourse = await _context.Courses.Where(c => c.CourseId == id).AsNoTracking().
-            Select(c => new GetCourseByIdDto()
+            Course? requestedCourse = await _repository.GetCourseById(id);
+            if (requestedCourse is null)
             {
-                  CourseId = c.CourseId,
-                  CourseName = c.CourseName,
-                  CoursePrice = c.CourseDetails.CoursePrice,
-                  CourseDescription = c.CourseDetails.CourseDescription
-            }).SingleOrDefaultAsync();
-            return requiredCourse;
+                  throw new Exception("Required course wasn't found");
+            }
+            return new GetCourseByIdDto()
+            {
+                  CourseId = requestedCourse!.CourseId,
+                  CourseName = requestedCourse.CourseName,
+                  CoursePrice = requestedCourse.CourseDetails.CoursePrice,
+                  CourseDescription = requestedCourse.CourseDetails.CourseDescription,
+                  Authors = requestedCourse.Authors.Select(a => new CreateAuthorDto
+                  {
+                        AuthorId = a.AuthorId,
+                        AuthorName = a.Name
+                  }).ToList()
+            };
       }
 
       public async Task<int> RemoveCourse(int id)
       {
-            Course? requiredCourse = _context.Courses.SingleOrDefault(c => c.CourseId == id);
+            try
+            {
+                  return await _repository.RemoveCourse(id);
 
-            if (requiredCourse is null)
-                  throw new ArgumentNullException("Entity with such Id was not found");
-
-            requiredCourse.IsDeleted = true;
-
-            return await _context.SaveChangesAsync();
+            }
+            catch(Exception)
+            {
+                  throw;
+            }
       }
 
       public async Task<int> UpdateCourse(UpdateCourseDto updateCourseDto)
       {
-            Course? requiredCourse = _context.Courses.Where(c => c.CourseId == updateCourseDto.CourseId)
-            .Include(c => c.Authors)
-            .Include(c => c.Categories).SingleOrDefault();
-
-            if (requiredCourse is null)
-            {
-                  throw new ArgumentNullException("Course hasn't been found");
-            }
-
-            if (!updateCourseDto.CourseName.Equals(requiredCourse.CourseName) && !string.IsNullOrEmpty(updateCourseDto.CourseName))
-            {
-                  requiredCourse.CourseName = updateCourseDto.CourseName;
-            }
-
-            if (!updateCourseDto.CourseDescription.Equals(requiredCourse.CourseDetails.CourseDescription) && !string.IsNullOrEmpty(updateCourseDto.CourseDescription))
-            {
-                  requiredCourse.CourseDetails.CourseDescription = updateCourseDto.CourseDescription;
-            }
-
-            if (!updateCourseDto.CoursePrice.Equals(requiredCourse.CourseDetails.CoursePrice) && updateCourseDto.CoursePrice is not 0)
-            {
-                  requiredCourse.CourseDetails.CoursePrice = updateCourseDto.CoursePrice;
-            }
-
-            if (updateCourseDto.Authors.Any())
-            {
-
-                  requiredCourse.Authors = await DifferentiateEntity<Author>(updateCourseDto.Authors);
-            }
-            
-            if(updateCourseDto.Categories.Any())
-            {
-                  requiredCourse.Categories = await DifferentiateEntity<Category>(updateCourseDto.Categories);
-            }
-
-            return await _context.SaveChangesAsync();
+           return await _repository.UpdateCourse(updateCourseDto);
       }
-
-      async Task<List<T>> DifferentiateEntity<T>(List<string> dtoNames) where T : class, IDifferentiateEntity, new()
-      {
-            List<T> existingValues = await _context.Set<T>().Where(t => dtoNames.Contains(t.Name)).ToListAsync();
-            List<string> existingNames = new();
-            foreach (var existingName in existingValues)
-            {
-                  existingNames.Add(existingName.Name);
-            }
-
-            List<string> newNames = dtoNames.Except(existingNames).ToList();
-
-            List<T> newValues = new();
-
-            foreach (string name in newNames)
-            {
-                  newValues.Add(new T() { Name = name });
-            }
-
-            return existingValues.Concat(newValues).ToList();
-
-      }
-
-
-
 }

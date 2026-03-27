@@ -1,4 +1,6 @@
 using System;
+using CourseApiDomain.Entities;
+using CourseApiServices.Dtos.AuthorDtos;
 
 namespace CourseApiServices.Dtos.CourseDtos;
 
@@ -12,5 +14,7 @@ public class GetCourseByIdDto
 
       public decimal CoursePrice { get; set; }
 
-      
+     public ICollection<CreateAuthorDto> Authors { get; set; } = null!;
+
+
 }

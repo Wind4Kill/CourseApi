@@ -15,7 +15,6 @@
     <Folder Include="Dtos/AuthorDtos/" />
     <Folder Include="Dtos/CategoryDtos/" />
     <Folder Include="Dtos/CourseDtos/" />
-    <Folder Include="Interfaces/" />
     <Folder Include="Interfaces/HelpClasses/" />
   </ItemGroup>
 

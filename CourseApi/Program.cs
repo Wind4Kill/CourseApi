@@ -2,6 +2,7 @@ using CourseApi.Enpoints;
 using CourseApiDomain;
 using CourseApiServices;
 using CourseApiServices.Interfaces;
+using CourseApiServices.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,7 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
 });
 
 builder.Services.AddTransient<ICourseService, CourseService>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 
 var app = builder.Build();
 
