@@ -2,6 +2,7 @@ namespace CourseApiServices.HelpClasses;
 
 public enum FilterOptions:byte
 {
-      ByPrice=1,
+      Default,
+      ByPrice,
       ByCategory
 }

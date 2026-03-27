@@ -96,8 +96,8 @@ public class CourseService : ICourseService
             }
       }
 
-      public async Task<int> UpdateCourse(UpdateCourseDto updateCourseDto)
+      public async Task<int> UpdateCourse(int id, UpdateCourseDto updateCourseDto)
       {
-           return await _repository.UpdateCourse(updateCourseDto);
+           return await _repository.UpdateCourse(id, updateCourseDto);
       }
 }

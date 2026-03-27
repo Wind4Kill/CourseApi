@@ -1,6 +1,7 @@
 using System;
 using CourseApiDomain.Entities;
 using CourseApiServices.Dtos.CourseDtos;
+using CourseApiServices.HelpClasses;
 using CourseApiServices.Interfaces;
 using CourseApiServices.Interfaces.HelpClasses;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -11,37 +12,59 @@ public static class CourseEndpoints
 {
       public static void AddCourseEndpoints(this WebApplication app)
       {
-           var builder= app.MapGroup("Course").WithTags("Courses");
-            builder.MapPost("/All", async (ICourseService service, SortFilterOptions? options, LinkGenerator generator) =>
+            var builder = app.MapGroup("/courses").WithTags("Courses");
+            builder.MapGet("", async (ICourseService service, [AsParameters] Filtering options) =>
             {
-                  if (options is null)
+                  SortFilterOptions sortFilterOptions = new()
                   {
-                        options = new SortFilterOptions();
-                  }
-                  List<GetCourseDto> courses = await service.GetCourses(options!);
-                  return courses is not null ? Results.Ok(courses) :
-                  Results.Problem(detail: "Courses haven't been found", statusCode: 404);
-            }).Produces<Ok>().ProducesProblem(statusCode: 404);
+                        Sorting = (SortingOptions)Enum.Parse(typeof(SortingOptions), options.Sorting!),
+                        Filter = (FilterOptions)Enum.Parse(typeof(FilterOptions), options.Filter!),
+                        FilterValue = options.FilterValue,
+                        PageNum = options.PageNum!.Value
+                  };
 
-            builder.MapPost("/", async (CreateCourseDto dto, ICourseService service, LinkGenerator generator) =>
+                  List<GetCourseDto> courses = await service.GetCourses(sortFilterOptions!);
+
+                  return Results.Ok(courses);
+
+            }).Produces(200);
+
+            builder.MapPost("", async (CreateCourseDto dto, ICourseService service, LinkGenerator links) =>
             {
-                  Course addedCourse = await service.CreateCourse(dto);
+                  Course course = await service.CreateCourse(dto);
+                  string? link = links.GetPathByName("GetCourseById", new { id = course.CourseId });
+                  return Results.Created(link, course);
 
-                  string? link = generator.GetPathByName("GetCourseById", new {id=addedCourse.CourseId});
-
-            Results.Created(link, addedCourse);
-            }).WithParameterValidation().Produces<Ok>().ProducesProblem(statusCode: 400);
+            }).WithParameterValidation().Produces(201);
 
             builder.MapGet("{id:int}", async (ICourseService service, int id) =>
             {
                   GetCourseByIdDto? requestedCourse = await service.GetCourseById(id);
+                  Results.Ok(requestedCourse);
+            }).Produces(200).WithName("GetCourseById");
 
-                  return requestedCourse is null ?
-                  Results.Problem(detail: "Requested course is not found", statusCode: 400)
-                  : Results.Ok(requestedCourse);
-            }).Produces<Ok>().ProducesProblem(statusCode: 400).WithName("GetCourseById");
-            
+            builder.MapDelete("{id:int}", async (int id, ICourseService service) =>
+            {
+                  int affectedRows = await service.RemoveCourse(id);
+
+                  return affectedRows is > 0 ? Results.NoContent() :
+                   Results.Problem(detail: "Removal wasn't successfull", statusCode: 404);
+
+            }).Produces(204).ProducesProblem(404);
+
+            builder.MapPatch("{id:int}", async (int id, UpdateCourseDto updatedCourse, ICourseService service) =>
+            {
+
+                  int affectedRows = await service.UpdateCourse(id, updatedCourse);
+
+                  return affectedRows is > 0 ? Results.NoContent() :
+                  Results.Problem(detail: "Entity couldn't be updated", statusCode: 400);
+
+
+
+            }).WithParameterValidation().Produces(204).ProducesProblem(400);
+
+
       }
-
 
 }

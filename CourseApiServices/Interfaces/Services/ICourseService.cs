@@ -13,5 +13,5 @@ public interface ICourseService
       Task<Course> CreateCourse(CreateCourseDto dto);
       Task<int> RemoveCourse(int id);
 
-      Task<int> UpdateCourse(UpdateCourseDto updatedCourseDto);
+      Task<int> UpdateCourse(int id, UpdateCourseDto updatedCourseDto);
 }

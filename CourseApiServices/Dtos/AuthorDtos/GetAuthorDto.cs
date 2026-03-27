@@ -1,5 +1,6 @@
 using System;
 using CourseApiDomain.Entities;
+using CourseApiServices.Dtos.CourseDtos;
 
 namespace CourseApiServices.Dtos.AuthorDtos;
 
@@ -9,5 +10,5 @@ public class GetAuthorDto
 
       public string Name { get; set; } = null!;
 
-      public ICollection<Course> Courses { get; set; } = null!;
+      public ICollection<GetCourseDto> Courses { get; set; } = null!;
 }

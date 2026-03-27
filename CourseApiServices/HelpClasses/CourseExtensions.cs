@@ -13,6 +13,7 @@ public static class CourseExtensions
             {
                   SortingOptions.ByName => courses.OrderBy(c => c.CourseName),
                   SortingOptions.ByPrice => courses.OrderBy(c => c.CourseDetails.CoursePrice),
+                  SortingOptions.Default => courses.OrderBy(c => c.CourseId),
                   _ => courses.OrderBy(c => c.CourseId)
             };
       }
@@ -29,18 +30,20 @@ public static class CourseExtensions
                   FilterOptions.ByCategory => courses.Where(c => c.Categories.
                   Any(c => c.Name == filterValue)),
 
+                  FilterOptions.Default => courses,
+
                   _ => courses
             };
       }
 
-      public static IQueryable<Course> PaginatePage(this IQueryable<Course> courses, int page=1)
+      public static IQueryable<Course> PaginatePage(this IQueryable<Course> courses, int page = 1)
       {
             int coursesPerPage = 10;
 
             if (page < 1)
                   throw new ArgumentException("{nameof(page)} can't be less than 0");
 
-            return courses.Skip(page-1 * coursesPerPage).Take(coursesPerPage);
+            return courses.Skip(page - 1 * coursesPerPage).Take(coursesPerPage);
 
       }
 

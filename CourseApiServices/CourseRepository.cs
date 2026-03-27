@@ -56,9 +56,9 @@ public class CourseRepository : ICourseRepository
 
       }
 
-      public async Task<int> UpdateCourse(UpdateCourseDto updateCourseDto)
+      public async Task<int> UpdateCourse(int id, UpdateCourseDto updateCourseDto)
       {
-            Course? requiredCourse = await _context.Courses.SingleOrDefaultAsync(c => c.CourseId == updateCourseDto.CourseId);
+            Course? requiredCourse = await _context.Courses.SingleOrDefaultAsync(c => c.CourseId == id);
 
             if (requiredCourse is null)
             {

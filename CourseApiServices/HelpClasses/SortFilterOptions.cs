@@ -5,11 +5,11 @@ namespace CourseApiServices.Interfaces.HelpClasses;
 
 public class SortFilterOptions
 {
-      public FilterOptions Filter { get; set; } = default;
-      public SortingOptions Sorting { get; set; } = default;
+      public FilterOptions Filter { get; set; }
+      public SortingOptions Sorting { get; set; } 
 
-      public string? FilterValue { get; set; } = null;
+      public string? FilterValue { get; set; }
 
-      public int PageNum { get; set; } = 1;
+      public int PageNum { get; set; }
 
 }

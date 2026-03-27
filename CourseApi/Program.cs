@@ -15,13 +15,13 @@ if (builder.Environment.IsDevelopment())
       builder.Services.AddSwaggerGen();
 }
 
-string connection = builder.Configuration.GetConnectionString("Database Connection")!;
+string connection = builder.Configuration.GetConnectionString("DefaultConnection")!;
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
       options.UseSqlite(connection);
 });
 
-builder.Services.AddTransient<ICourseService, CourseService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 
 var app = builder.Build();
@@ -49,6 +49,6 @@ if (app.Environment.IsProduction())
 }
 
 app.AddCourseEndpoints();
-app.AddAuthorEndpoins();
+app.AddAuthorEndpoints();
 
 app.Run();

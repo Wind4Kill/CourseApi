@@ -7,9 +7,6 @@ namespace CourseApiServices.Dtos.CourseDtos;
 
 public class UpdateCourseDto
 {
-      [Required]
-      public int CourseId { get; set; }
-
       public string CourseName { get; set; } = null!;
 
       public decimal CoursePrice { get; set; }

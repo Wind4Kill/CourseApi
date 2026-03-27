@@ -10,14 +10,14 @@ public class CreateCourseDto
       [Required]
       public string CourseName { get; set; } = null!;
 
-[Required]
+      [Required]
       public string CourseDescription { get; set; } = null!;
 
-[Required]
+      [Required]
       public decimal CoursePrice { get; set; }
 
-[Required]
+      [Required]
       public ICollection<CreateAuthorDto> Authors { get; set; } = null!;
-[Required]
+      [Required]
       public ICollection<CreateCategoryDto> Categories { get; set; } = null!;
 }
