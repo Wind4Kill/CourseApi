@@ -18,10 +18,11 @@ public class CourseRepository : ICourseRepository
       {
             _context = context;
       }
-      public async Task<int> AddCourse(Course addedCourse)
+      public async Task<Course> AddCourse(Course addedCourse)
       {
             _context.Add(addedCourse);
-            return await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+            return addedCourse;
       }
 
       public async Task<IEnumerable<Course>> GetCourses(SortFilterOptions options)
@@ -114,4 +115,6 @@ public class CourseRepository : ICourseRepository
             return existingValues.Concat(newValues).ToList();
 
       }
+
+      
 }

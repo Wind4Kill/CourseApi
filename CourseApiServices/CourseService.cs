@@ -21,11 +21,10 @@ public class CourseService : ICourseService
             _repository = repository;
       }
 
-      public async Task<(int, string)> CreateCourse(CreateCourseDto dto)
+      public async Task<Course> CreateCourse(CreateCourseDto dto)
       {
             Course addedCourse = new Course()
             {
-                  CourseId = dto.CourseId,
                   CourseName = dto.CourseName,
                   CourseDetails = new CourseDetails()
                   {
@@ -35,21 +34,19 @@ public class CourseService : ICourseService
                   Authors = dto.Authors.
                   Select(dto => new Author()
                   {
-                        AuthorId = dto.AuthorId,
                         Name = dto.AuthorName
                   }).ToList(),
                   Categories = dto.Categories.
                   Select(dto => new Category()
                   {
-                        CategoryId = dto.CategoryId,
                         Name = dto.CategoryName
                   }).ToList()
 
             };
 
-            int affectedRows = await _repository.AddCourse(addedCourse);
+            return await _repository.AddCourse(addedCourse);
 
-            return (affectedRows, addedCourse.CourseName);
+            
       }
 
       public async Task<List<GetCourseDto>> GetCourses(SortFilterOptions options)
@@ -78,10 +75,10 @@ public class CourseService : ICourseService
                   CourseName = requestedCourse.CourseName,
                   CoursePrice = requestedCourse.CourseDetails.CoursePrice,
                   CourseDescription = requestedCourse.CourseDetails.CourseDescription,
-                  Authors = requestedCourse.Authors.Select(a => new CreateAuthorDto
+                  Authors = requestedCourse.Authors.Select(a => new GetAuthorDto
                   {
                         AuthorId = a.AuthorId,
-                        AuthorName = a.Name
+                        Name = a.Name
                   }).ToList()
             };
       }

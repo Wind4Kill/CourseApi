@@ -14,7 +14,7 @@ public class GetCourseByIdDto
 
       public decimal CoursePrice { get; set; }
 
-     public ICollection<CreateAuthorDto> Authors { get; set; } = null!;
+     public ICollection<GetAuthorDto> Authors { get; set; } = null!;
 
 
 }

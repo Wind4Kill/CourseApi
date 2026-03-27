@@ -8,9 +8,6 @@ namespace CourseApiServices.Dtos.CourseDtos;
 public class CreateCourseDto
 {
       [Required]
-      public int CourseId { get; set; }
-
-      [Required]
       public string CourseName { get; set; } = null!;
 
 [Required]

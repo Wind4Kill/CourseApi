@@ -8,7 +8,7 @@ namespace CourseApiServices.Interfaces;
 
 public interface ICourseRepository
 {
-      Task<int> AddCourse(Course addedCourse);
+      Task<Course> AddCourse(Course addedCourse);
 
       Task<IEnumerable<Course>> GetCourses(SortFilterOptions options);
 
