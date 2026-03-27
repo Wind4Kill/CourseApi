@@ -2,9 +2,9 @@ using System;
 
 namespace CourseApiDomain.Entities;
 
-public class Category
+public class Category:IDifferentiateEntity
 {
       public int CategoryId { get; set; }
 
-      public string CategoryName { get; set; } = null!;
+      public string Name { get; set; } = null!;
 }

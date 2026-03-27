@@ -5,22 +5,19 @@ using CourseApiServices.Dtos.CategoryDtos;
 
 namespace CourseApiServices.Dtos.CourseDtos;
 
-public class CreateCourseDto
+public class UpdateCourseDto
 {
       [Required]
       public int CourseId { get; set; }
 
-      [Required]
       public string CourseName { get; set; } = null!;
 
-[Required]
-      public string CourseDescription { get; set; } = null!;
-
-[Required]
       public decimal CoursePrice { get; set; }
 
-[Required]
-      public ICollection<CreateAuthorDto> Authors { get; set; } = null!;
-[Required]
-      public ICollection<CreateCategoryDto> Categories { get; set; } = null!;
+      public string CourseDescription { get; set; } = null!;
+
+      public List<string> Authors { get; set; } = null!;
+      public List<string> Categories { get; set; } = null!;
+
+
 }

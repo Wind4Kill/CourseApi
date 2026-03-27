@@ -27,7 +27,7 @@ public static class CourseExtensions
                   Where(c => c.CourseDetails.CoursePrice <= decimal.Parse(filterValue!)),
 
                   FilterOptions.ByCategory => courses.Where(c => c.Categories.
-                  Any(c => c.CategoryName == filterValue)),
+                  Any(c => c.Name == filterValue)),
 
                   _ => courses
             };

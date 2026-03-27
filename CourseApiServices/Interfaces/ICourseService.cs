@@ -13,4 +13,6 @@ public interface ICourseService
       Task<GetCourseByIdDto?> GetCourseById(int id);
 
       Task<int> RemoveCourse(int id);
+
+      Task<int> UpdateCourse(UpdateCourseDto updatedCourseDto);
 }

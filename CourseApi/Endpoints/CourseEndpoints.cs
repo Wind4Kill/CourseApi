@@ -23,7 +23,7 @@ public static class CourseEndpoints
                   Results.Problem(detail: "Courses haven't been found", statusCode: 404);
             }).Produces<Ok>().ProducesProblem(statusCode: 404);
 
-            builder.MapPost("/", async (CreateCourseDto dto, ICourseService service, LinkGenerator generator) =>
+            builder.MapPost("", async (CreateCourseDto dto, ICourseService service, LinkGenerator generator) =>
             {
                   (int affectedRows, string addedCourse) = await service.CreateCourse(dto);
 
@@ -56,7 +56,13 @@ public static class CourseEndpoints
                         return Results.Problem(detail: ex.Message, statusCode: 500);
                   }
 
+            }).Produces<Ok>().ProducesProblem(404).ProducesProblem(500);
+
+            builder.MapPatch("", async (UpdateCourseDto updatedCourse, ICourseService service) =>
+            {
+                  await service.UpdateCourse(updatedCourse);
             });
+            
             
 
 

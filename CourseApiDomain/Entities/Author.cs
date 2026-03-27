@@ -2,11 +2,11 @@ using System;
 
 namespace CourseApiDomain.Entities;
 
-public class Author
+public class Author:IDifferentiateEntity
 {
       public int AuthorId { get; set; }
 
-      public string AuthorName { get; set; } = null!;
+      public string Name { get; set; } = null!;
 
       public ICollection<Course> Books { get; set; } = null!;
 }
