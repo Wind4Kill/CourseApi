@@ -14,6 +14,8 @@ public class ApplicationContext : DbContext
       {
             modelBuilder.Entity<Course>().OwnsOne(c => c.CourseDetails);
             modelBuilder.Entity<Course>().Navigation(c => c.CourseDetails).IsRequired();
+
+            modelBuilder.Entity<Course>().HasQueryFilter(c => !c.IsDeleted);
       }
 
 }

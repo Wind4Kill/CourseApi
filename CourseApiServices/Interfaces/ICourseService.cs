@@ -10,5 +10,7 @@ public interface ICourseService
       Task<List<GetCourseDto>> GetCourses(SortFilterOptions options);
       Task<(int, string)> CreateCourse(CreateCourseDto dto);
 
-      public Task<GetCourseByIdDto?> GetCourseById(int id);
+      Task<GetCourseByIdDto?> GetCourseById(int id);
+
+      Task<int> RemoveCourse(int id);
 }

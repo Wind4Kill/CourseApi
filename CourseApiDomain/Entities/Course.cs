@@ -16,4 +16,6 @@ public class Course
 
       public double? CourseRating { get; private set; }
 
+      public bool IsDeleted { get; set; }
+
 }

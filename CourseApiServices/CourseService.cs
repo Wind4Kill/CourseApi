@@ -75,4 +75,16 @@ public class CourseService : ICourseService
             }).SingleOrDefaultAsync();
             return requiredCourse;
       }
+
+      public async Task<int> RemoveCourse(int id)
+      {
+            Course? requiredCourse = _context.Courses.SingleOrDefault(c => c.CourseId == id);
+
+            if (requiredCourse is null)
+                  throw new ArgumentNullException("Entity with such Id was not found");
+
+            requiredCourse.IsDeleted = true;
+
+            return await _context.SaveChangesAsync();
+      }
 }
