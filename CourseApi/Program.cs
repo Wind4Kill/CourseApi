@@ -41,7 +41,7 @@ if (app.Environment.IsProduction())
             
             if(_context.Database.GetPendingMigrations().Any())
             {
-                 await _context.Database.MigrateAsync();
+                  await _context.Database.MigrateAsync();
             }
       }
 }

@@ -8,5 +8,7 @@ namespace CourseApiServices.Interfaces;
 public interface ICourseService
 {
       Task<List<GetCourseDto>> GetCourses(SortFilterOptions options);
-      Task<int> CreateCourse(CreateCourseDto dto);
+      Task<(int, string)> CreateCourse(CreateCourseDto dto);
+
+      public Task<GetCourseByIdDto?> GetCourseById(int id);
 }

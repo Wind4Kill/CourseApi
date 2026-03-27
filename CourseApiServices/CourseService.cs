@@ -18,7 +18,7 @@ public class CourseService : ICourseService
             _context = context;
       }
 
-      public async Task<int> CreateCourse(CreateCourseDto dto)
+      public async Task<(int, string)> CreateCourse(CreateCourseDto dto)
       {
             Course addedCourse = new Course()
             {
@@ -42,7 +42,8 @@ public class CourseService : ICourseService
 
             _context.Courses.Add(addedCourse);
 
-           return await _context.SaveChangesAsync();
+            int affectedRows = await _context.SaveChangesAsync();
+            return (affectedRows, addedCourse.CourseName);
       }
 
       public async Task<List<GetCourseDto>> GetCourses(SortFilterOptions options)
@@ -60,5 +61,18 @@ public class CourseService : ICourseService
             ToListAsync();
 
             return courses;
+      }
+
+      public async Task<GetCourseByIdDto?> GetCourseById(int id)
+      {
+            GetCourseByIdDto? requiredCourse = await _context.Courses.Where(c => c.CourseId == id).AsNoTracking().
+            Select(c => new GetCourseByIdDto()
+            {
+                  CourseId = c.CourseId,
+                  CourseName = c.CourseName,
+                  CoursePrice = c.CourseDetails.CoursePrice,
+                  CourseDescription = c.CourseDetails.CourseDescription
+            }).SingleOrDefaultAsync();
+            return requiredCourse;
       }
 }

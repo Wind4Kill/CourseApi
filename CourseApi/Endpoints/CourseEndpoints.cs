@@ -14,7 +14,7 @@ public static class CourseEndpoints
            var builder= app.MapGroup("Course").WithTags("Courses");
             builder.MapPost("/All", async (ICourseService service, SortFilterOptions? options, LinkGenerator generator) =>
             {
-                  if(options is null)
+                  if (options is null)
                   {
                         options = new SortFilterOptions();
                   }
@@ -23,14 +23,24 @@ public static class CourseEndpoints
                   Results.Problem(detail: "Courses haven't been found", statusCode: 404);
             }).Produces<Ok>().ProducesProblem(statusCode: 404);
 
-            builder.MapPost("/Create", async (CreateCourseDto dto, ICourseService service) =>
+            builder.MapPost("/", async (CreateCourseDto dto, ICourseService service, LinkGenerator generator) =>
             {
-                  int affectedRows = await service.CreateCourse(dto);
+                  (int affectedRows, string addedCourse) = await service.CreateCourse(dto);
 
-                  string link = "";
+                  string? link = generator.GetPathByName("GetCourseById", new {id=dto.CourseId});
 
-                  return affectedRows is not 0 ? Results.Created() : Results.Problem(detail: "Course hasn't been added", statusCode: 400);
-            }).WithParameterValidation().Produces<Ok>().ProducesProblem(statusCode:400);
+                  return affectedRows is not 0 ? Results.Created(link, addedCourse) : Results.Problem(detail: "Course hasn't been added", statusCode: 400);
+            }).WithParameterValidation().Produces<Ok>().ProducesProblem(statusCode: 400);
+
+            builder.MapGet("{id:int}", async (ICourseService service, int id) =>
+            {
+                  GetCourseByIdDto? requestedCourse = await service.GetCourseById(id);
+
+                  return requestedCourse is null ?
+                  Results.Problem(detail: "Requested course is not found", statusCode: 400)
+                  : Results.Ok(requestedCourse);
+            }).Produces<Ok>().ProducesProblem(statusCode: 400).WithName("GetCourseById");
+            
       }
 
 
