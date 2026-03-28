@@ -40,7 +40,7 @@ public static class CourseEndpoints
             builder.MapGet("{id:int}", async (ICourseService service, int id) =>
             {
                   GetCourseByIdDto? requestedCourse = await service.GetCourseById(id);
-                  Results.Ok(requestedCourse);
+                  return requestedCourse is null? Results.NotFound():Results.Ok(requestedCourse);
             }).Produces(200).WithName("GetCourseById");
 
             builder.MapDelete("{id:int}", async (int id, ICourseService service) =>

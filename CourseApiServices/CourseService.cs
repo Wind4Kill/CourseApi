@@ -65,10 +65,10 @@ public class CourseService : ICourseService
       public async Task<GetCourseByIdDto?> GetCourseById(int id)
       {
             Course? requestedCourse = await _repository.GetCourseById(id);
+
             if (requestedCourse is null)
-            {
-                  throw new Exception("Required course wasn't found");
-            }
+                  return null;
+
             return new GetCourseByIdDto()
             {
                   CourseId = requestedCourse!.CourseId,
@@ -85,15 +85,7 @@ public class CourseService : ICourseService
 
       public async Task<int> RemoveCourse(int id)
       {
-            try
-            {
                   return await _repository.RemoveCourse(id);
-
-            }
-            catch(Exception)
-            {
-                  throw;
-            }
       }
 
       public async Task<int> UpdateCourse(int id, UpdateCourseDto updateCourseDto)

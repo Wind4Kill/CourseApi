@@ -2,6 +2,13 @@ using System;
 
 namespace CourseApi;
 
-public record Filtering(string? Filter = "Default",
-string? Sorting = "Default", string? FilterValue = "", int? PageNum=1);
+public record Filtering
+{
+      public string? Filter { get; init; } = "Default";
+      public string? Sorting { get; init; } = "Default";
+      public string? FilterValue { get; init; } = "";
+      public int? PageNum { get; init; } = 1;
+}
+
+
 

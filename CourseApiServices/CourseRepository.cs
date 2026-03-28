@@ -37,19 +37,15 @@ public class CourseRepository : ICourseRepository
 
       public async Task<Course?> GetCourseById(int id)
       {
-            Course? course = _context.Courses.AsNoTracking().
+            Course? course = await _context.Courses.AsNoTracking().
             Include(c => c.Authors).Include(c=>c.Categories).
-            SingleOrDefault(c => c.CourseId == id);
+            SingleOrDefaultAsync(c => c.CourseId == id);
             return course;
       }
 
       public async Task<int> RemoveCourse(int id)
       {
             Course requestedCourse = _context.Courses.Single(c => c.CourseId == id);
-            if (requestedCourse is null)
-            {
-                  throw new Exception("Requested course wasn't found");
-            }
 
             requestedCourse.IsDeleted = true;
             return await _context.SaveChangesAsync();
@@ -62,7 +58,7 @@ public class CourseRepository : ICourseRepository
 
             if (requiredCourse is null)
             {
-                  throw new ArgumentNullException("Course hasn't been found");
+                  throw new InvalidOperationException("Course hasn't been found");
             }
 
             if (!updateCourseDto.CourseName.Equals(requiredCourse.CourseName) && !string.IsNullOrEmpty(updateCourseDto.CourseName))

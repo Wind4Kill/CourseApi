@@ -4,10 +4,21 @@ using CourseApiServices;
 using CourseApiServices.Interfaces;
 using CourseApiServices.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Hellang.Middleware.ProblemDetails;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddProblemDetails();
+builder.Services.AddProblemDetails(options =>
+{
+      options.Map<InvalidOperationException>(ex => new ProblemDetails
+      {
+            Detail = ex.Message,
+            Status = StatusCodes.Status404NotFound,
+            Title="Entity wasn't found"
+      });
+});
+
 
 if (builder.Environment.IsDevelopment())
 {
@@ -40,8 +51,8 @@ if (app.Environment.IsProduction())
       await using (var scope = app.Services.CreateAsyncScope())
       {
             ApplicationContext _context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
-            
-            if(_context.Database.GetPendingMigrations().Any())
+
+            if (_context.Database.GetPendingMigrations().Any())
             {
                   await _context.Database.MigrateAsync();
             }
