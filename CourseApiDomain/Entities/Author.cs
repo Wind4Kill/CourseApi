@@ -8,5 +8,5 @@ public class Author:IDifferentiateEntity
 
       public string Name { get; set; } = null!;
 
-      public ICollection<Course> Books { get; set; } = null!;
+      public ICollection<Course> Courses { get; set; } = null!;
 }

@@ -6,6 +6,7 @@ using CourseApiServices.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Mvc;
+using CourseApiDomain.Entities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,7 @@ builder.Services.AddProblemDetails(options =>
       {
             Detail = ex.Message,
             Status = StatusCodes.Status404NotFound,
-            Title="Entity wasn't found"
+            Title = "Entity wasn't found"
       });
 });
 
@@ -46,16 +47,45 @@ if (app.Environment.IsDevelopment())
 
 app.UseStatusCodePages();
 
+if (app.Environment.IsDevelopment())
+{
+      await using (var scope = app.Services.CreateAsyncScope())
+      {
+            ApplicationContext context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
+
+            if (!context.Courses.Any())
+            {
+                  context.Courses.AddRange(
+                        new Course()
+                        {
+                              CourseName = "C#",
+                              CourseDetails = new CourseDetails
+                              {
+                                    CourseDescription = "Advanced C#",
+                                    CoursePrice = 1000
+                              },
+                              Authors = new List<Author>() { new Author() { Name = "Andrew Troelsen" } },
+                              Categories = new List<Category>() { new Category { Name = "C#" } },
+                              Reviews = new List<Review>() { new Review { ReviewText = "Great course!", ReviewRating = 10.0 } }
+                        }
+                  );
+
+                 await context.SaveChangesAsync();
+            }
+      }
+}
+
+
 if (app.Environment.IsProduction())
 {
       app.UseExceptionHandler();
       await using (var scope = app.Services.CreateAsyncScope())
       {
-            ApplicationContext _context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
+            ApplicationContext context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
 
-            if (_context.Database.GetPendingMigrations().Any())
+            if (context.Database.GetPendingMigrations().Any())
             {
-                  await _context.Database.MigrateAsync();
+                  await context.Database.MigrateAsync();
             }
       }
 }

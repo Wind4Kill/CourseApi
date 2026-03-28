@@ -8,5 +8,6 @@ public class Category:IDifferentiateEntity
 
       public string Name { get; set; } = null!;
 
-      public  ICollection<Course>? Courses { get; set; }
+      public ICollection<Course>? Courses { get; set; }
+      
 }

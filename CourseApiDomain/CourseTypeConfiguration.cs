@@ -12,7 +12,8 @@ public class CourseTypeConfiguration : IEntityTypeConfiguration<Course>
             builder.OwnsOne(c => c.CourseDetails);
             builder.Navigation(c => c.CourseDetails).IsRequired();
             builder.HasQueryFilter(c => !c.IsDeleted);
-
+            
             builder.Property(c => c.CourseRating).HasField("_courseRating");
+            
       }
 }
