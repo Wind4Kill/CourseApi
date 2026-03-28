@@ -38,7 +38,8 @@ public class CourseRepository : ICourseRepository
       public async Task<Course?> GetCourseById(int id)
       {
             Course? course = await _context.Courses.AsNoTracking().
-            Include(c => c.Authors).Include(c=>c.Categories).
+            Include(c => c.Authors).Include(c=>c.Categories)
+            .Include(c=>c.Reviews).
             SingleOrDefaultAsync(c => c.CourseId == id);
             return course;
       }

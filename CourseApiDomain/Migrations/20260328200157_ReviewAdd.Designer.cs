@@ -2,6 +2,7 @@
 using CourseApiDomain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CourseApiDomain.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20260328200157_ReviewAdd")]
+    partial class ReviewAdd
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.5");
@@ -29,21 +32,6 @@ namespace CourseApiDomain.Migrations
                     b.HasIndex("BooksCourseId");
 
                     b.ToTable("AuthorCourse");
-                });
-
-            modelBuilder.Entity("CategoryCourse", b =>
-                {
-                    b.Property<int>("CategoriesCategoryId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("CoursesCourseId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("CategoriesCategoryId", "CoursesCourseId");
-
-                    b.HasIndex("CoursesCourseId");
-
-                    b.ToTable("CategoryCourse");
                 });
 
             modelBuilder.Entity("CourseApiDomain.Entities.Author", b =>
@@ -64,7 +52,7 @@ namespace CourseApiDomain.Migrations
                         new
                         {
                             AuthorId = 4,
-                            Name = "John Doe"
+                            Name = "JohnDoe"
                         });
                 });
 
@@ -74,11 +62,16 @@ namespace CourseApiDomain.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("CourseId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("CategoryId");
+
+                    b.HasIndex("CourseId");
 
                     b.ToTable("Category");
 
@@ -86,6 +79,7 @@ namespace CourseApiDomain.Migrations
                         new
                         {
                             CategoryId = 5,
+                            CourseId = 5,
                             Name = "Backend"
                         });
                 });
@@ -165,19 +159,11 @@ namespace CourseApiDomain.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("CategoryCourse", b =>
+            modelBuilder.Entity("CourseApiDomain.Entities.Category", b =>
                 {
-                    b.HasOne("CourseApiDomain.Entities.Category", null)
-                        .WithMany()
-                        .HasForeignKey("CategoriesCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("CourseApiDomain.Entities.Course", null)
-                        .WithMany()
-                        .HasForeignKey("CoursesCourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("Categories")
+                        .HasForeignKey("CourseId");
                 });
 
             modelBuilder.Entity("CourseApiDomain.Entities.Course", b =>
@@ -225,6 +211,8 @@ namespace CourseApiDomain.Migrations
 
             modelBuilder.Entity("CourseApiDomain.Entities.Course", b =>
                 {
+                    b.Navigation("Categories");
+
                     b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618

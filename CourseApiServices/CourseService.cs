@@ -3,6 +3,7 @@ using CourseApiDomain;
 using CourseApiDomain.Entities;
 using CourseApiServices.Dtos.AuthorDtos;
 using CourseApiServices.Dtos.CourseDtos;
+using CourseApiServices.Dtos.ReviewDtos;
 using CourseApiServices.Interfaces;
 using CourseApiServices.Interfaces.HelpClasses;
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +52,8 @@ public class CourseService : ICourseService
 
       public async Task<List<GetCourseDto>> GetCourses(SortFilterOptions options)
       {
-            List<GetCourseDto> courses = (await _repository.GetCourses(options)).Select(c => new GetCourseDto
+            List<GetCourseDto> courses = (await _repository.GetCourses(options)).
+            Select(c => new GetCourseDto
             {
                   CourseId = c.CourseId,
                   CourseName = c.CourseName,
@@ -75,11 +77,17 @@ public class CourseService : ICourseService
                   CourseName = requestedCourse.CourseName,
                   CoursePrice = requestedCourse.CourseDetails.CoursePrice,
                   CourseDescription = requestedCourse.CourseDetails.CourseDescription,
+                  CourseRating = requestedCourse.CourseRating,
+                  Reviews = requestedCourse.Reviews?.Select(r => new ReviewDto
+                  {
+                        ReviewText = r.ReviewText,
+                        ReviewRating = r.ReviewRating
+                  }).ToList(),
                   Authors = requestedCourse.Authors.Select(a => new GetAuthorDto
                   {
                         AuthorId = a.AuthorId,
                         Name = a.Name
-                  }).ToList()
+                  }).ToList(),
             };
       }
 
