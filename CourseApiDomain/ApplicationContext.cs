@@ -9,17 +9,17 @@ public class ApplicationContext : DbContext
       public DbSet<Author> Authors { get; set; }
       public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options) { }
 
-      public double? GetCourseRating(int courseId)
+      public static double? GetCourseRating(int courseId)
       {
-            return null;
+            throw new NotImplementedException();
       }
 
       protected override void OnModelCreating(ModelBuilder modelBuilder)
       {
             modelBuilder.ApplyConfiguration(new CourseTypeConfiguration());
 
-            modelBuilder.HasDbFunction(() => GetCourseRating(default(int)));
-
+            modelBuilder.HasDbFunction(() => GetCourseRating(default(int))).
+            HasName("get_course_rating");
       }
 
 }

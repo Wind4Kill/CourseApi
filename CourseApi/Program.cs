@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Mvc;
 using CourseApiDomain.Entities;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ builder.Services.AddProblemDetails(options =>
       });
 });
 
+builder.Services.AddAutoMapper(Assembly.GetAssembly(typeof(CourseService)));
 
 if (builder.Environment.IsDevelopment())
 {
@@ -28,10 +30,11 @@ if (builder.Environment.IsDevelopment())
       builder.Services.AddSwaggerGen();
 }
 
-string connection = builder.Configuration.GetConnectionString("DefaultConnection")!;
+string connection = builder.Configuration.GetConnectionString("PostgreConnection")!;
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
-      options.UseSqlite(connection);
+      options.UseNpgsql(connection)
+      .LogTo(Console.WriteLine);
 });
 
 builder.Services.AddScoped<ICourseService, CourseService>();

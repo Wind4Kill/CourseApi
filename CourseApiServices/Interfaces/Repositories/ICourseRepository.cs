@@ -8,11 +8,11 @@ namespace CourseApiServices.Interfaces;
 
 public interface ICourseRepository
 {
-      Task<Course> AddCourse(Course addedCourse);
+      Task<GetCourseDto> AddCourse(Course addedCourse);
 
-      Task<IEnumerable<Course>> GetCourses(SortFilterOptions options);
+      Task<List<GetCourseDto>> GetCourses(SortFilterOptions options);
 
-      Task<Course?> GetCourseById(int id);
+      Task<GetCourseByIdDto?> GetCourseById(int id);
 
       Task<int> RemoveCourse(int id);
 

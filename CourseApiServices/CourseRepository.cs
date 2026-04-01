@@ -1,8 +1,12 @@
 using System;
 using System.Collections;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using CourseApiDomain;
 using CourseApiDomain.Entities;
+using CourseApiServices.Dtos.AuthorDtos;
 using CourseApiServices.Dtos.CourseDtos;
+using CourseApiServices.Dtos.ReviewDtos;
 using CourseApiServices.Interfaces.HelpClasses;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,33 +17,64 @@ namespace CourseApiServices.Interfaces.Repositories;
 public class CourseRepository : ICourseRepository
 {
       ApplicationContext _context;
+      IMapper _mapper;
 
-      public CourseRepository(ApplicationContext context)
+      public CourseRepository(ApplicationContext context, IMapper mapper)
       {
             _context = context;
+            _mapper = mapper;
       }
-      public async Task<Course> AddCourse(Course addedCourse)
+      public async Task<GetCourseDto> AddCourse(Course addedCourse)
       {
             _context.Add(addedCourse);
             await _context.SaveChangesAsync();
-            return addedCourse;
+            return new GetCourseDto
+            {
+                  CourseId = addedCourse.CourseId,
+                  CourseName = addedCourse.CourseName,
+                  CoursePrice = addedCourse.CourseDetails.CoursePrice,
+            };
       }
 
-      public async Task<IEnumerable<Course>> GetCourses(SortFilterOptions options)
+      public async Task<List<GetCourseDto>> GetCourses(SortFilterOptions options)
       {
-            List<Course> courses = await _context.Courses.AsNoTracking().
+            List<GetCourseDto> courses = await _context.Courses.AsNoTracking().
             SortCourses(options.Sorting).
             FilterCourses(options.Filter, options.FilterValue).
-            PaginatePage(options.PageNum).ToListAsync();
+            PaginatePage(options.PageNum).
+            Select(c => new GetCourseDto
+            {
+                  CourseId = c.CourseId,
+                  CourseName = c.CourseName,
+                  CoursePrice = c.CourseDetails.CoursePrice,
+                  CourseRating = ApplicationContext.GetCourseRating(c.CourseId)
+            }).ToListAsync();
 
             return courses;
       }
 
-      public async Task<Course?> GetCourseById(int id)
+      public async Task<GetCourseByIdDto?> GetCourseById(int id)
       {
-            Course? course = await _context.Courses.AsNoTracking().
-            Include(c => c.Authors).Include(c=>c.Categories)
-            .Include(c=>c.Reviews).
+            GetCourseByIdDto? course = await _context.Courses.AsNoTracking().
+            Include(c => c.Authors).Include(c => c.Categories)
+            .Include(c => c.Reviews).Select(c => new GetCourseByIdDto()
+            {
+                  CourseId = c!.CourseId,
+                  CourseName = c.CourseName,
+                  CoursePrice = c.CourseDetails.CoursePrice,
+                  CourseDescription = c.CourseDetails.CourseDescription,
+                  CourseRating = ApplicationContext.GetCourseRating(c.CourseId),
+                  Reviews = c.Reviews!.Select(r => new ReviewDto
+                  {
+                        ReviewText = r.ReviewText,
+                        ReviewRating = r.ReviewRating
+                  }).ToList(),
+                  Authors = c.Authors.Select(a => new GetAuthorDto
+                  {
+                        AuthorId = a.AuthorId,
+                        Name = a.Name
+                  }).ToList()
+            }).
             SingleOrDefaultAsync(c => c.CourseId == id);
             return course;
       }
@@ -90,7 +125,7 @@ public class CourseRepository : ICourseRepository
 
             return await _context.SaveChangesAsync();
       }
-      
+
       async Task<List<T>> DifferentiateEntity<T>(List<string> dtoNames) where T : class, IDifferentiateEntity, new()
       {
             List<T> existingValues = await _context.Set<T>().Where(t => dtoNames.Contains(t.Name)).ToListAsync();
@@ -113,5 +148,5 @@ public class CourseRepository : ICourseRepository
 
       }
 
-      
+
 }

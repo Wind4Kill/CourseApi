@@ -31,7 +31,7 @@ public static class CourseEndpoints
 
             builder.MapPost("", async (CreateCourseDto dto, ICourseService service, LinkGenerator links) =>
             {
-                  Course course = await service.CreateCourse(dto);
+                  GetCourseDto course = await service.CreateCourse(dto);
                   string? link = links.GetPathByName("GetCourseById", new { id = course.CourseId });
                   return Results.Created(link, course);
 
