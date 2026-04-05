@@ -1,12 +1,10 @@
 using System;
-using AutoMapper;
 using CourseApiDomain.Entities;
 using CourseApiServices.Dtos.AuthorDtos;
 using CourseApiServices.Dtos.ReviewDtos;
 
 namespace CourseApiServices.Dtos.CourseDtos;
 
-[AutoMap(typeof(Course))]
 public class GetCourseByIdDto
 {
       public int CourseId { get; set; }

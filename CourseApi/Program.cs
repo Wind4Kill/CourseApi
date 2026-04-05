@@ -8,6 +8,8 @@ using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Mvc;
 using CourseApiDomain.Entities;
 using System.Reflection;
+using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,19 +24,20 @@ builder.Services.AddProblemDetails(options =>
       });
 });
 
-builder.Services.AddAutoMapper(Assembly.GetAssembly(typeof(CourseService)));
 
 if (builder.Environment.IsDevelopment())
 {
       builder.Services.AddEndpointsApiExplorer();
       builder.Services.AddSwaggerGen();
+      builder.Services.AddHealthChecks();
 }
 
 string connection = builder.Configuration.GetConnectionString("PostgreConnection")!;
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
       options.UseNpgsql(connection)
-      .LogTo(Console.WriteLine);
+      .LogTo((message)=>Debug.WriteLine(message), new [] {RelationalEventId.CommandExecuted});
+
 });
 
 builder.Services.AddScoped<ICourseService, CourseService>();
@@ -46,12 +49,7 @@ if (app.Environment.IsDevelopment())
 {
       app.UseSwagger();
       app.UseSwaggerUI();
-}
 
-app.UseStatusCodePages();
-
-if (app.Environment.IsDevelopment())
-{
       await using (var scope = app.Services.CreateAsyncScope())
       {
             ApplicationContext context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
@@ -73,11 +71,12 @@ if (app.Environment.IsDevelopment())
                         }
                   );
 
-                 await context.SaveChangesAsync();
+                  await context.SaveChangesAsync();
             }
       }
 }
 
+app.UseStatusCodePages();
 
 if (app.Environment.IsProduction())
 {
@@ -91,6 +90,11 @@ if (app.Environment.IsProduction())
                   await context.Database.MigrateAsync();
             }
       }
+}
+
+if (app.Environment.IsDevelopment())
+{
+      app.MapHealthChecks("/health");
 }
 
 app.AddCourseEndpoints();

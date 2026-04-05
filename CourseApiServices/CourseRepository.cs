@@ -1,7 +1,5 @@
 using System;
 using System.Collections;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using CourseApiDomain;
 using CourseApiDomain.Entities;
 using CourseApiServices.Dtos.AuthorDtos;
@@ -17,12 +15,10 @@ namespace CourseApiServices.Interfaces.Repositories;
 public class CourseRepository : ICourseRepository
 {
       ApplicationContext _context;
-      IMapper _mapper;
 
-      public CourseRepository(ApplicationContext context, IMapper mapper)
+      public CourseRepository(ApplicationContext context)
       {
             _context = context;
-            _mapper = mapper;
       }
       public async Task<GetCourseDto> AddCourse(Course addedCourse)
       {
