@@ -36,7 +36,7 @@ string connection = builder.Configuration.GetConnectionString("PostgreConnection
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
       options.UseNpgsql(connection)
-      .LogTo((message)=>Debug.WriteLine(message), new [] {RelationalEventId.CommandExecuted});
+      .LogTo((message) => Debug.WriteLine(message), new[] { RelationalEventId.CommandExecuted });
 
 });
 
@@ -45,10 +45,27 @@ builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 
 var app = builder.Build();
 
+if (app.Environment.IsProduction())
+{
+      app.UseExceptionHandler();
+      await using (var scope = app.Services.CreateAsyncScope())
+      {
+            ApplicationContext context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
+
+            if (context.Database.GetPendingMigrations().Any())
+            {
+                  await context.Database.MigrateAsync();
+            }
+      }
+}
+
+app.UseStatusCodePages();
+
 if (app.Environment.IsDevelopment())
 {
       app.UseSwagger();
       app.UseSwaggerUI();
+      app.MapHealthChecks("/health");
 
       await using (var scope = app.Services.CreateAsyncScope())
       {
@@ -74,27 +91,6 @@ if (app.Environment.IsDevelopment())
                   await context.SaveChangesAsync();
             }
       }
-}
-
-app.UseStatusCodePages();
-
-if (app.Environment.IsProduction())
-{
-      app.UseExceptionHandler();
-      await using (var scope = app.Services.CreateAsyncScope())
-      {
-            ApplicationContext context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
-
-            if (context.Database.GetPendingMigrations().Any())
-            {
-                  await context.Database.MigrateAsync();
-            }
-      }
-}
-
-if (app.Environment.IsDevelopment())
-{
-      app.MapHealthChecks("/health");
 }
 
 app.AddCourseEndpoints();

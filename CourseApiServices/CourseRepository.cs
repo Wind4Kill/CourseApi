@@ -15,7 +15,7 @@ namespace CourseApiServices.Interfaces.Repositories;
 public class CourseRepository : ICourseRepository
 {
       ApplicationContext _context;
-
+      
       public CourseRepository(ApplicationContext context)
       {
             _context = context;
@@ -52,8 +52,9 @@ public class CourseRepository : ICourseRepository
       public async Task<GetCourseByIdDto?> GetCourseById(int id)
       {
             GetCourseByIdDto? course = await _context.Courses.AsNoTracking().
-            Include(c => c.Authors).Include(c => c.Categories)
-            .Include(c => c.Reviews).Select(c => new GetCourseByIdDto()
+            Include(c => c.Authors)
+            .Include(c => c.Reviews)
+            .Select(c => new GetCourseByIdDto()
             {
                   CourseId = c!.CourseId,
                   CourseName = c.CourseName,
