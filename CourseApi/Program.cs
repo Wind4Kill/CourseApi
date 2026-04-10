@@ -36,7 +36,7 @@ string connection = builder.Configuration.GetConnectionString("PostgreConnection
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
       options.UseNpgsql(connection)
-      .LogTo((message) => Debug.WriteLine(message), new[] { RelationalEventId.CommandExecuted });
+      .LogTo((message) => Debug.WriteLine(message), LogLevel.Information).EnableSensitiveDataLogging();
 
 });
 
