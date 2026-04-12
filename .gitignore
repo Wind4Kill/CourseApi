@@ -1,6 +1,8 @@
 # Build directories
 **/bin/
 **/obj/
+**/bin\Debug/
+**/bin\Release/
 **/publish/
 
 # Visual Studio / IDE
