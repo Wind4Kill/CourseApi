@@ -15,7 +15,7 @@ namespace CourseApiServices.Interfaces.Repositories;
 public class CourseRepository : ICourseRepository
 {
       ApplicationContext _context;
-      
+
       public CourseRepository(ApplicationContext context)
       {
             _context = context;
@@ -38,12 +38,14 @@ public class CourseRepository : ICourseRepository
             SortCourses(options.Sorting).
             FilterCourses(options.Filter, options.FilterValue).
             PaginatePage(options.PageNum).
-            Select(c => new GetCourseDto
+            Select(c=> new GetCourseDto
             {
                   CourseId = c.CourseId,
                   CourseName = c.CourseName,
                   CoursePrice = c.CourseDetails.CoursePrice,
+                  // Previous variant:
                   CourseRating = ApplicationContext.GetCourseRating(c.CourseId)
+                  // CourseRating =  _context.Ratings.Where(r=>r.CourseId==c.CourseId).Select(r=>r.Rating).FirstOrDefault()
             }).ToListAsync();
 
             return courses;
@@ -51,9 +53,7 @@ public class CourseRepository : ICourseRepository
 
       public async Task<GetCourseByIdDto?> GetCourseById(int id)
       {
-            GetCourseByIdDto? course = await _context.Courses.AsNoTracking().
-            Include(c => c.Authors)
-            .Include(c => c.Reviews)
+            GetCourseByIdDto? course = await _context.Courses.AsNoTracking()
             .Select(c => new GetCourseByIdDto()
             {
                   CourseId = c!.CourseId,

@@ -15,7 +15,6 @@ public class Course
       public ICollection<Review>? Reviews { get; set; }
 
       public required CourseDetails CourseDetails { get; set; }
-
       public bool IsDeleted { get; set; }
 
 
