@@ -19,7 +19,7 @@ public class ApplicationContext : DbContext
             modelBuilder.ApplyConfiguration(new CourseTypeConfiguration());
 
             modelBuilder.HasDbFunction(() => GetCourseRating(default(int))).
-            HasName("get_course_rating");
+            HasName("get_course_rating").HasSchema("public");
       }
 
 }

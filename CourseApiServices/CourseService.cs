@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using AutoMapper;
 using CourseApiDomain;
 using CourseApiDomain.Entities;
 using CourseApiServices.Dtos.AuthorDtos;

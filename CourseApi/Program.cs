@@ -8,6 +8,8 @@ using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Mvc;
 using CourseApiDomain.Entities;
 using System.Reflection;
+using System.Diagnostics;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,19 +24,20 @@ builder.Services.AddProblemDetails(options =>
       });
 });
 
-builder.Services.AddAutoMapper(Assembly.GetAssembly(typeof(CourseService)));
 
 if (builder.Environment.IsDevelopment())
 {
       builder.Services.AddEndpointsApiExplorer();
       builder.Services.AddSwaggerGen();
+      builder.Services.AddHealthChecks();
 }
 
 string connection = builder.Configuration.GetConnectionString("PostgreConnection")!;
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
       options.UseNpgsql(connection)
-      .LogTo(Console.WriteLine);
+      .LogTo((message) => Debug.WriteLine(message), LogLevel.Information).EnableSensitiveDataLogging();
+
 });
 
 builder.Services.AddScoped<ICourseService, CourseService>();
@@ -42,16 +45,28 @@ builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsProduction())
 {
-      app.UseSwagger();
-      app.UseSwaggerUI();
+      app.UseExceptionHandler();
+      await using (var scope = app.Services.CreateAsyncScope())
+      {
+            ApplicationContext context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
+
+            if (context.Database.GetPendingMigrations().Any())
+            {
+                  await context.Database.MigrateAsync();
+            }
+      }
 }
 
 app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {
+      app.UseSwagger();
+      app.UseSwaggerUI();
+      app.MapHealthChecks("/health");
+
       await using (var scope = app.Services.CreateAsyncScope())
       {
             ApplicationContext context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
@@ -73,22 +88,7 @@ if (app.Environment.IsDevelopment())
                         }
                   );
 
-                 await context.SaveChangesAsync();
-            }
-      }
-}
-
-
-if (app.Environment.IsProduction())
-{
-      app.UseExceptionHandler();
-      await using (var scope = app.Services.CreateAsyncScope())
-      {
-            ApplicationContext context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
-
-            if (context.Database.GetPendingMigrations().Any())
-            {
-                  await context.Database.MigrateAsync();
+                  await context.SaveChangesAsync();
             }
       }
 }
