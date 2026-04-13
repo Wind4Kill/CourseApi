@@ -24,6 +24,7 @@ public class CourseRepository : ICourseRepository
       {
             _context.Add(addedCourse);
             await _context.SaveChangesAsync();
+
       }
 
       public IQueryable<Course> GetCourses()
@@ -53,6 +54,5 @@ public class CourseRepository : ICourseRepository
       {
             return await _context.SaveChangesAsync();
       }
-
 
 }

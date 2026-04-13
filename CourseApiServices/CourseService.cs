@@ -165,7 +165,6 @@ public class CourseService : ICourseService
                   requiredCourse.Categories = await Help.DifferentiateEntity<Category>(updateCourseDto.Categories, requiredCourse.Categories as List<Category>);
             }
 
-            return await _repository.UpdateCourse();
+            return await _courseRepository.UpdateCourse();
       }
-
 }

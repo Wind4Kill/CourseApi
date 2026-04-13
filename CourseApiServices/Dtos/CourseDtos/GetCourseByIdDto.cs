@@ -17,7 +17,7 @@ public class GetCourseByIdDto
 
       public double? CourseRating { get; set; }
 
-      public required ICollection<GetAuthorDto> Authors { get; set; }
+      public  ICollection<GetAuthorDto>? Authors { get; set; }
 
       public ICollection<ReviewDto>? Reviews { get; set; }
 
