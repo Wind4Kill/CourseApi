@@ -9,10 +9,12 @@ public class Course
 
       public string CourseName { get; set; } = null!;
 
-      public required ICollection<Author> Authors { get; set; }
+      public ICollection<Author> Authors { get; set; } = null!;
 
-      public required ICollection<Category> Categories { get; set; }
+      public ICollection<Category> Categories { get; set; } = null!;
       public ICollection<Review>? Reviews { get; set; }
+
+      public double? AverageRating { get; init; }
 
       public required CourseDetails CourseDetails { get; set; }
       public bool IsDeleted { get; set; }

@@ -13,6 +13,15 @@ public static class CourseEndpoints
       public static void AddCourseEndpoints(this WebApplication app)
       {
             var builder = app.MapGroup("/courses").WithTags("Courses");
+
+            builder.MapPost("", async (CreateCourseDto dto, ICourseService service, LinkGenerator links) =>
+           {
+                 Course course = await service.CreateCourse(dto);
+                 string? link = links.GetPathByName("GetCourseById", new { id = course.CourseId });
+                 return Results.Created(link, course);
+
+           }).WithParameterValidation().Produces(201);
+
             builder.MapGet("", async (ICourseService service, [AsParameters] Filtering options) =>
             {
                   SortFilterOptions sortFilterOptions = new()
@@ -29,19 +38,23 @@ public static class CourseEndpoints
 
             }).Produces(200);
 
-            builder.MapPost("", async (CreateCourseDto dto, ICourseService service, LinkGenerator links) =>
-            {
-                  GetCourseDto course = await service.CreateCourse(dto);
-                  string? link = links.GetPathByName("GetCourseById", new { id = course.CourseId });
-                  return Results.Created(link, course);
-
-            }).WithParameterValidation().Produces(201);
-
             builder.MapGet("{id:int}", async (ICourseService service, int id) =>
             {
                   GetCourseByIdDto? requestedCourse = await service.GetCourseById(id);
-                  return requestedCourse is null? Results.NotFound():Results.Ok(requestedCourse);
+                  return requestedCourse is null ? Results.NotFound() : Results.Ok(requestedCourse);
             }).Produces(200).WithName("GetCourseById");
+
+            builder.MapPatch("{id:int}", async (int id, UpdateCourseDto updatedCourse, ICourseService service) =>
+                       {
+
+                             int affectedRows = await service.UpdateCourse(id, updatedCourse);
+
+                             return affectedRows is > 0 ? Results.NoContent() :
+                             Results.Problem(detail: "Entity couldn't be updated", statusCode: 400);
+
+
+
+                       }).WithParameterValidation().Produces(204).ProducesProblem(400);
 
             builder.MapDelete("{id:int}", async (int id, ICourseService service) =>
             {
@@ -51,19 +64,6 @@ public static class CourseEndpoints
                    Results.Problem(detail: "Removal wasn't successfull", statusCode: 404);
 
             }).Produces(204).ProducesProblem(404);
-
-            builder.MapPatch("{id:int}", async (int id, UpdateCourseDto updatedCourse, ICourseService service) =>
-            {
-
-                  int affectedRows = await service.UpdateCourse(id, updatedCourse);
-
-                  return affectedRows is > 0 ? Results.NoContent() :
-                  Results.Problem(detail: "Entity couldn't be updated", statusCode: 400);
-
-
-
-            }).WithParameterValidation().Produces(204).ProducesProblem(400);
-
 
       }
 

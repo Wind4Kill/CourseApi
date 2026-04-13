@@ -10,13 +10,15 @@ using CourseApiDomain.Entities;
 using System.Reflection;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using CourseApiServices.Interfaces.HelpClasses;
+using CourseApiServices.Interfaces.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails(options =>
 {
-      options.Map<InvalidOperationException>(ex => new ProblemDetails
+      options.Map<EntityNotFoundException>(ex => new ProblemDetails
       {
             Detail = ex.Message,
             Status = StatusCodes.Status404NotFound,
@@ -42,6 +44,8 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
 
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 var app = builder.Build();
 

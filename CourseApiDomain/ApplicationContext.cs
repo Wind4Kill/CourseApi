@@ -9,6 +9,8 @@ public class ApplicationContext : DbContext
       public DbSet<Course> Courses { get; set; }
       public DbSet<Author> Authors { get; set; }
 
+      public DbSet<Category> Categories { get; set; }
+
       public DbSet<RatingView> Ratings { get; set; }
       public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options) { }
 
@@ -21,7 +23,7 @@ public class ApplicationContext : DbContext
       {
             modelBuilder.ApplyConfiguration(new CourseTypeConfiguration());
 
-            modelBuilder.HasDbFunction(() => GetCourseRating(default(int))).
+            modelBuilder.HasDbFunction(() => CourseFunctions.GetCourseRating(default(int))).
             HasName("get_course_rating").HasSchema("public");
 
             modelBuilder.Entity<RatingView>().HasNoKey().ToView("CoursesWithRating");
