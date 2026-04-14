@@ -61,9 +61,9 @@ public static class CourseEndpoints
                   int affectedRows = await service.RemoveCourse(id);
 
                   return affectedRows is > 0 ? Results.NoContent() :
-                   Results.Problem(detail: "Removal wasn't successfull", statusCode: 404);
+                   Results.InternalServerError("Removal wasn't successfull");
 
-            }).Produces(204).ProducesProblem(404);
+            }).Produces(204).ProducesProblem(500);
 
       }
 

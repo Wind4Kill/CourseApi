@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using CourseApiDomain;
 using CourseApiDomain.Entities;
+using CourseApiDomain.Views;
 using CourseApiServices.Dtos.AuthorDtos;
 using CourseApiServices.Dtos.CourseDtos;
 using CourseApiServices.Dtos.ReviewDtos;
@@ -38,6 +39,8 @@ public class CourseRepository : ICourseRepository
       {
             Course? course = await _context.Courses.Include(c => c.Reviews).Include(c => c.Authors).
             FirstOrDefaultAsync(c => c.CourseId == id);
+            RatingView requestedRating = await _context.Ratings.Where(c => c.CourseId == id).FirstAsync();
+            course?.AverageRating = requestedRating.AvgRating;
             return course;
       }
 

@@ -14,7 +14,7 @@ public class Course
       public ICollection<Category> Categories { get; set; } = null!;
       public ICollection<Review>? Reviews { get; set; }
 
-      public double? AverageRating { get; init; }
+      public double? AverageRating { get; set; }
 
       public required CourseDetails CourseDetails { get; set; }
       public bool IsDeleted { get; set; }

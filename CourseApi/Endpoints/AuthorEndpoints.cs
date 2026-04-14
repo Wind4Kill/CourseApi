@@ -1,6 +1,7 @@
 using System;
 using CourseApiDomain.Entities;
 using CourseApiServices.Dtos.AuthorDtos;
+using CourseApiServices.Dtos.CourseDtos;
 using CourseApiServices.Interfaces.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,20 @@ public static class AuthorEndpoints
                   GetAuthorByIdDto requestedAuthor = await service.GetAuthorById(id);
                   return Results.Ok(requestedAuthor);
             }).WithName("GetAuthorById").Produces(200);
-            
-      
+
+            endpointBuilder.MapDelete("{id:int}", async (int id, IAuthorService service) =>
+            {
+                  int affectedRows = await service.DeleteAuthor(id);
+
+                  return affectedRows is > 0 ? Results.NoContent() : Results.InternalServerError("Entity couldn't be updated");
+            });
+
+            endpointBuilder.MapPost("{id:int}", async (int id, IAuthorService service, CreateCourseDto createdCourseDto, LinkGenerator links) =>
+            {
+                  Course createdCourse = await service.AddCourseToAuthor(id, createdCourseDto);
+                  string? link = links.GetPathByName("GetCourseById", new { Id = createdCourse.CourseId });
+
+                  return Results.Created(link, createdCourse);
+            });
       }
 }

@@ -103,7 +103,7 @@ public class CourseService : ICourseService
                   CourseName = course.CourseName,
                   CoursePrice = course.CourseDetails.CoursePrice,
                   CourseDescription = course.CourseDetails.CourseDescription,
-                  CourseRating = CourseFunctions.GetCourseRating(course.CourseId),
+                  CourseRating = course.AverageRating,
                   Authors = course.Authors.Select(a => new GetAuthorDto()
                   {
                         AuthorId = a.AuthorId,
@@ -136,7 +136,7 @@ public class CourseService : ICourseService
 
             if (requiredCourse is null)
             {
-                  throw new InvalidOperationException("Course hasn't been found");
+                  throw new EntityNotFoundException("Course hasn't been found");
             }
 
             if (!updateCourseDto.CourseName.Equals(requiredCourse.CourseName) && !string.IsNullOrEmpty(updateCourseDto.CourseName))

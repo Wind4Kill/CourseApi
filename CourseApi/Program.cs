@@ -37,8 +37,16 @@ if (builder.Environment.IsDevelopment())
 string connection = builder.Configuration.GetConnectionString("PostgreConnection")!;
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
-      options.UseNpgsql(connection)
-      .LogTo((message) => Debug.WriteLine(message), LogLevel.Information).EnableSensitiveDataLogging();
+      options.UseNpgsql(connection, options =>
+      options.EnableRetryOnFailure());
+
+      if (!builder.Environment.IsProduction())
+      {
+            options.LogTo((message) => Debug.WriteLine(message), LogLevel.Information)
+            .EnableSensitiveDataLogging().
+            EnableDetailedErrors();
+      }
+
 
 });
 

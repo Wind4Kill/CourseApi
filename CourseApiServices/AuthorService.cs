@@ -3,6 +3,7 @@ using CourseApiDomain;
 using CourseApiDomain.Entities;
 using CourseApiServices.Dtos.AuthorDtos;
 using CourseApiServices.Dtos.CourseDtos;
+using CourseApiServices.Interfaces;
 using CourseApiServices.Interfaces.HelpClasses;
 using CourseApiServices.Interfaces.Repositories;
 using CourseApiServices.Interfaces.Services;
@@ -12,17 +13,19 @@ namespace CourseApiServices;
 public class AuthorService : IAuthorService
 {
       readonly IAuthorRepository _authorRepository;
+      readonly ICourseRepository _courseRepository;
 
-      public AuthorService(IAuthorRepository authorRepository)
+      public AuthorService(IAuthorRepository authorRepository, ICourseRepository courseRepository)
       {
             _authorRepository = authorRepository;
+            _courseRepository = courseRepository;
       }
 
       public async Task<Author> CreateAuthor(CreateAuthorDto authorDto)
       {
-            Author author = new Author() { Name = authorDto.AuthorName };
-            await _authorRepository.CreateAuthor(author);
-            return author;
+            Author createdAuthor = new Author() { Name = authorDto.AuthorName };
+            await _authorRepository.CreateAuthor(createdAuthor);
+            return createdAuthor;
       }
 
       public async Task<GetAuthorByIdDto> GetAuthorById(int id)
@@ -53,5 +56,36 @@ public class AuthorService : IAuthorService
             }
 
             return mappedAuthor;
+      }
+
+      public async Task<int> DeleteAuthor(int id)
+      {
+            return await _authorRepository.DeleteAuthor(id);
+      }
+
+      public async Task<Course> AddCourseToAuthor(int authorId, CreateCourseDto courseDto)
+      {
+
+            Course createdCourse = new Course()
+            {
+                  CourseName = courseDto.CourseName,
+                  CourseDetails = new CourseDetails()
+                  {
+                        CourseDescription = courseDto.CourseDescription,
+                        CoursePrice = courseDto.CoursePrice
+                  },
+                  Authors = new List<Author>() { new Author { AuthorId = authorId } },
+                  Categories=new List<Category>()            };
+
+            foreach (var category in courseDto.Categories)
+            {
+                  createdCourse.Categories.Add(new Category { Name = category.CategoryName });
+            }
+
+            await _courseRepository.AddCourse(createdCourse);
+
+            return createdCourse;
+            
+
       }
 }
