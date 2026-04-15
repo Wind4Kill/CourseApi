@@ -9,6 +9,7 @@ public class AuthorTypeConfiguration : IEntityTypeConfiguration<Author>
 {
       public void Configure(EntityTypeBuilder<Author> builder)
       {
+            builder.HasIndex(c => c.Name).IsUnique();
             builder.HasQueryFilter(a => a.IsDeleted != true);
       }
 }

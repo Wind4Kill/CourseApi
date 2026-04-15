@@ -73,7 +73,7 @@ public class CourseService : ICourseService
       {
             IQueryable<Course> courses = _courseRepository.GetCourses();
 
-            List<GetCourseDto> mappedCourses = await courses.AsNoTracking().
+            List<GetCourseDto> mappedCourses = await courses.
                         SortCourses(options.Sorting).
                         FilterCourses(options.Filter, options.FilterValue).
                         PaginatePage(options.PageNum).

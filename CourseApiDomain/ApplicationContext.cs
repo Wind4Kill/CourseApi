@@ -1,4 +1,5 @@
-﻿using CourseApiDomain.Entities;
+﻿using System.Reflection;
+using CourseApiDomain.Entities;
 using CourseApiDomain.Views;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,7 +22,8 @@ public class ApplicationContext : DbContext
 
       protected override void OnModelCreating(ModelBuilder modelBuilder)
       {
-            modelBuilder.ApplyConfiguration(new CourseTypeConfiguration());
+            // modelBuilder.ApplyConfiguration(new CourseTypeConfiguration());
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
             modelBuilder.HasDbFunction(() => CourseFunctions.GetCourseRating(default(int))).
             HasName("get_course_rating").HasSchema("public");

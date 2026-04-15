@@ -30,15 +30,17 @@ public class CourseRepository : ICourseRepository
 
       public IQueryable<Course> GetCourses()
       {
-            IQueryable<Course> courses = _context.Courses;
+            IQueryable<Course> courses = _context.Courses.AsNoTracking();
 
             return courses;
       }
 
       public async Task<Course?> GetCourseById(int id)
       {
-            Course? course = await _context.Courses.Include(c => c.Reviews).Include(c => c.Authors).
+            Course? course = await _context.Courses.
+            Include(c => c.Reviews).Include(c => c.Authors).
             FirstOrDefaultAsync(c => c.CourseId == id);
+            
             RatingView requestedRating = await _context.Ratings.Where(c => c.CourseId == id).FirstAsync();
             course?.AverageRating = requestedRating.AvgRating;
             return course;
@@ -46,10 +48,9 @@ public class CourseRepository : ICourseRepository
 
       public async Task<int> RemoveCourse(int id)
       {
-            Course requestedCourse = await _context.Courses.SingleAsync(c => c.CourseId == id);
-
-            requestedCourse.IsDeleted = true;
-            return await _context.SaveChangesAsync();
+            return await _context.Courses.Where(c => c.CourseId == id).
+            ExecuteUpdateAsync(c => c.
+            SetProperty(course => course.IsDeleted, course => true));
 
       }
 

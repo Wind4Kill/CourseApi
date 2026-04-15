@@ -24,10 +24,9 @@ public class AuthorRepository : IAuthorRepository
 
       public async Task<int> DeleteAuthor(int id)
       {
-            Author requestedAuthor=_context.Authors.Single(a => a.AuthorId == id);
-            requestedAuthor.IsDeleted = true;
-            return await _context.SaveChangesAsync();
-            
+            return await _context.Authors.Where(a => a.AuthorId == id).
+            ExecuteUpdateAsync(a => a.
+            SetProperty(author => author.IsDeleted, author => true));
       }
 
       public async Task<Author?> GetAuthorById(int id)
