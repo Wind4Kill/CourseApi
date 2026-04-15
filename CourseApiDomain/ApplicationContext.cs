@@ -15,14 +15,15 @@ public class ApplicationContext : DbContext
       public DbSet<RatingView> Ratings { get; set; }
       public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options) { }
 
-      public static double? GetCourseRating(int courseId)
+
+      protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
       {
-            throw new NotImplementedException();
+            configurationBuilder.Properties<string>().HaveMaxLength(100);
       }
+
 
       protected override void OnModelCreating(ModelBuilder modelBuilder)
       {
-            // modelBuilder.ApplyConfiguration(new CourseTypeConfiguration());
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
             modelBuilder.HasDbFunction(() => CourseFunctions.GetCourseRating(default(int))).
