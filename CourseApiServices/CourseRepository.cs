@@ -38,10 +38,10 @@ public class CourseRepository : ICourseRepository
       public async Task<Course?> GetCourseById(int id)
       {
             Course? course = await _context.Courses.
-            Include(c => c.Reviews).Include(c => c.Authors).
+            Include(c => c.Reviews).Include(c => c.Author).
             FirstOrDefaultAsync(c => c.CourseId == id);
             
-            RatingView requestedRating = await _context.Ratings.Where(c => c.CourseId == id).FirstAsync();
+            CourseRating requestedRating = await _context.Ratings.Where(c => c.CourseId == id).FirstAsync();
             course?.AverageRating = requestedRating.AvgRating;
             return course;
       }

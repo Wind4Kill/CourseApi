@@ -10,5 +10,5 @@ public class GetAuthorDto
 
       public string Name { get; set; } = null!;
 
-      public ICollection<GetCourseDto> Courses { get; set; } = null!;
+      public List<GetCourseDto> Courses { get; set; } = null!;
 }

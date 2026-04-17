@@ -15,7 +15,7 @@ public class UpdateCourseDto
       [MaxLength(250)]
       public string CourseDescription { get; set; } = null!;
 
-      public List<string> Authors { get; set; } = null!;
+      public string? Author{ get; set; }
       public List<string> Categories { get; set; } = null!;
 
 

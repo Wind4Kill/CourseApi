@@ -28,7 +28,7 @@ public class AuthorService : IAuthorService
             return createdAuthor;
       }
 
-      public async Task<GetAuthorByIdDto> GetAuthorById(int id)
+      public async Task<GetAuthorDto> GetAuthorById(int id)
       {
             Author? author = await _authorRepository.GetAuthorById(id);
 
@@ -37,21 +37,20 @@ public class AuthorService : IAuthorService
                   throw new EntityNotFoundException("Author hasn't been found");
             }
 
-            GetAuthorByIdDto mappedAuthor = new GetAuthorByIdDto()
+            GetAuthorDto mappedAuthor = new GetAuthorDto()
             {
                   AuthorId = author.AuthorId,
-                  AuthorName = author.Name,
+                  Name = author.Name
             };
 
             if (author.Courses is not null)
             {
-                  mappedAuthor.Courses = author.Courses.Select(c => new GetCourseByIdDto()
+                  mappedAuthor.Courses = author.Courses.Select(c => new GetCourseDto()
                   {
                         CourseId = c.CourseId,
                         CourseName = c.CourseName,
                         CourseRating = CourseFunctions.GetCourseRating(c.CourseId),
-                        CoursePrice = c.CourseDetails.CoursePrice,
-                        CourseDescription = c.CourseDetails.CourseDescription
+                        CoursePrice = c.CourseDetails.CoursePrice
                   }).ToList();
             }
 
@@ -74,8 +73,9 @@ public class AuthorService : IAuthorService
                         CourseDescription = courseDto.CourseDescription,
                         CoursePrice = courseDto.CoursePrice
                   },
-                  Authors = new List<Author>() { new Author { AuthorId = authorId } },
-                  Categories=new List<Category>()            };
+                  Author = new Author { AuthorId = authorId },
+                  Categories = new List<Category>()
+            };
 
             foreach (var category in courseDto.Categories)
             {
@@ -85,7 +85,7 @@ public class AuthorService : IAuthorService
             await _courseRepository.AddCourse(createdCourse);
 
             return createdCourse;
-            
+
 
       }
 }

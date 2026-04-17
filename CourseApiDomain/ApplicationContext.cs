@@ -12,7 +12,7 @@ public class ApplicationContext : DbContext
 
       public DbSet<Category> Categories { get; set; }
 
-      public DbSet<RatingView> Ratings { get; set; }
+      public DbSet<CourseRating> Ratings { get; set; }
       public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options) { }
 
 
@@ -29,7 +29,12 @@ public class ApplicationContext : DbContext
             modelBuilder.HasDbFunction(() => CourseFunctions.GetCourseRating(default(int))).
             HasName("get_course_rating").HasSchema("public");
 
-            modelBuilder.Entity<RatingView>().HasNoKey().ToView("CoursesWithRating");
+            modelBuilder.Entity<CourseRating>().HasNoKey().ToSqlQuery("""
+              SELECT 
+                c."CourseId",
+                get_avg_rating(c."CourseId") AS "AvgRating"
+            FROM "Course" c
+            """);
       }
 
 }

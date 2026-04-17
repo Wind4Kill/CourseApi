@@ -17,9 +17,9 @@ public class GetCourseByIdDto
 
       public double? CourseRating { get; set; }
 
-      public  ICollection<GetAuthorDto>? Authors { get; set; }
+      public GetAuthorDto Author { get; set; } = null!; 
 
-      public ICollection<ReviewDto>? Reviews { get; set; }
+      public List<ReviewDto>? Reviews { get; set; }
 
 
 }

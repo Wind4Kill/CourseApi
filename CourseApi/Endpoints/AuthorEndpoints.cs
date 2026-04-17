@@ -25,7 +25,7 @@ public static class AuthorEndpoints
 
             endpointBuilder.MapGet("{id:int}", async (int id, IAuthorService service) =>
             {
-                  GetAuthorByIdDto requestedAuthor = await service.GetAuthorById(id);
+                  GetAuthorDto requestedAuthor = await service.GetAuthorById(id);
                   return Results.Ok(requestedAuthor);
             }).WithName("GetAuthorById").Produces(200);
 

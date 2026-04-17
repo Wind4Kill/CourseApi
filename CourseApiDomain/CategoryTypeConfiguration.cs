@@ -5,12 +5,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace CourseApiDomain;
 
-public class AuthorTypeConfiguration : IEntityTypeConfiguration<Author>
+public class CategoryTypeConfiguration : IEntityTypeConfiguration<Category>
 {
-      public void Configure(EntityTypeBuilder<Author> builder)
+      public void Configure(EntityTypeBuilder<Category> builder)
       {
             builder.HasIndex(c => c.Name).IsUnique();
-            builder.HasQueryFilter(a => !a.IsDeleted);
       }
 }
-

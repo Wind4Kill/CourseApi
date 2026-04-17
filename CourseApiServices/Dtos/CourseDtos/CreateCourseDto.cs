@@ -19,7 +19,7 @@ public class CreateCourseDto
       public decimal CoursePrice { get; set; }
 
       [Required]
-      public ICollection<CreateAuthorDto> Authors { get; set; } = null!;
+      public string Author { get; set; } = null!;
       [Required]
-      public ICollection<CreateCategoryDto> Categories { get; set; } = null!;
+      public List<CreateCategoryDto> Categories { get; set; } = null!;
 }

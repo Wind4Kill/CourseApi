@@ -9,7 +9,9 @@ public class Course
 
       public string CourseName { get; set; } = null!;
 
-      public ICollection<Author> Authors { get; set; } = null!;
+      public Author Author { get; set; } = null!;
+
+      public int AuthorId { get; set; }
 
       public ICollection<Category> Categories { get; set; } = null!;
       public ICollection<Review>? Reviews { get; set; }

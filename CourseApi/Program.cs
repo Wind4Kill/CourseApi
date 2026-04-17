@@ -4,7 +4,6 @@ using CourseApiServices;
 using CourseApiServices.Interfaces;
 using CourseApiServices.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Hellang.Middleware.ProblemDetails;
 using Microsoft.AspNetCore.Mvc;
 using CourseApiDomain.Entities;
 using System.Reflection;
@@ -13,20 +12,17 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using CourseApiServices.Interfaces.HelpClasses;
 using CourseApiServices.Interfaces.Services;
 using CourseApi;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddProblemDetails(options =>
+builder.Services.ConfigureHttpJsonOptions(options =>
 {
-      options.Map<EntityNotFoundException>(ex => new ProblemDetails
-      {
-            Detail = ex.Message,
-            Status = StatusCodes.Status404NotFound,
-            Title = "Entity wasn't found"
-      });
+      options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
+builder.Services.AddProblemDetails();
 
 if (builder.Environment.IsDevelopment())
 {
@@ -62,7 +58,26 @@ var app = builder.Build();
 
 if (app.Environment.IsProduction())
 {
-      app.UseExceptionHandler();
+      app.UseExceptionHandler(app => app.Run(async context =>
+      {
+      var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+      var (status, title) = exception switch
+      {
+            EntityNotFoundException => (404, "Requested entity wasn't found"),
+            _ => (500, "Internal Server Error")
+      };
+
+      context.Response.StatusCode = status;
+
+            await context.Response.WriteAsJsonAsync(new ProblemDetails
+            {
+                  Title = title,
+                  Status = status,
+                  Detail = exception?.Message
+            });
+      
+      }));
       await app.MigratePendingMigrations();
 }
 

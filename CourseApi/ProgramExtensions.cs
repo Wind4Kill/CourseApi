@@ -38,7 +38,7 @@ public static class ProgramExtensions
                                          CourseDescription = "Advanced C#",
                                          CoursePrice = 1000
                                    },
-                                   Authors = new List<Author>() { new Author() { Name = "Andrew Troelsen" } },
+                                   Author =  new Author() { Name = "Andrew Troelsen" } ,
                                    Categories = new List<Category>() { new Category { Name = "C#" } },
                                    Reviews = new List<Review>() { new Review { ReviewText = "Great course!", ReviewRating = 10.0 } }
                              }

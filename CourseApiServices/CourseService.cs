@@ -32,7 +32,7 @@ public class CourseService : ICourseService
 
       public async Task<Course> CreateCourse(CreateCourseDto dto)
       {
-            
+
             Course addedCourse = new Course()
             {
                   CourseName = dto.CourseName,
@@ -41,11 +41,7 @@ public class CourseService : ICourseService
                         CourseDescription = dto.CourseDescription,
                         CoursePrice = dto.CoursePrice
                   },
-                  Authors = dto.Authors.
-                  Select(dto => new Author()
-                  {
-                        Name = dto.AuthorName
-                  }).ToList(),
+                  Author = new Author() { Name = dto.Author },
                   Categories = dto.Categories.
                   Select(dto => new Category()
                   {
@@ -54,15 +50,11 @@ public class CourseService : ICourseService
 
             };
 
-            List<string> dtoAuthorsNames = dto.Authors.Select(a=>a.AuthorName).ToList();
-
-            List<Author>? existedAuthors = await _authorRepository.GetAuthorsByNames(dtoAuthorsNames);
-
             List<string> dtoCategoriesNames = dto.Categories.Select(c => c.CategoryName).ToList();
 
             List<Category>? existedCategories = await _categoryRepository.GetCategoriesByNames(dtoCategoriesNames);
 
-            addedCourse.Authors = await Help.DifferentiateEntity(dtoAuthorsNames, existedAuthors);
+            addedCourse.Categories = await Help.DifferentiateEntity<Category>(dtoNames: dtoCategoriesNames, existedValues: existedCategories);
 
             await _courseRepository.AddCourse(addedCourse);
 
@@ -104,11 +96,11 @@ public class CourseService : ICourseService
                   CoursePrice = course.CourseDetails.CoursePrice,
                   CourseDescription = course.CourseDetails.CourseDescription,
                   CourseRating = course.AverageRating,
-                  Authors = course.Authors.Select(a => new GetAuthorDto()
+                  Author = new GetAuthorDto()
                   {
-                        AuthorId = a.AuthorId,
-                        Name = a.Name
-                  }).ToList(),
+                        AuthorId = course.Author.AuthorId,
+                        Name = course.Author.Name
+                  }
 
             };
 
@@ -154,10 +146,18 @@ public class CourseService : ICourseService
                   requiredCourse.CourseDetails.CoursePrice = updateCourseDto.CoursePrice;
             }
 
-            if (updateCourseDto.Authors.Any())
+            if (!string.IsNullOrEmpty(updateCourseDto.Author))
             {
+                  Author? existedAuthor = (await _authorRepository.GetAuthorsByNames([updateCourseDto.Author]))?.FirstOrDefault();
 
-                  requiredCourse.Authors = await Help.DifferentiateEntity<Author>(updateCourseDto.Authors, requiredCourse.Authors as List<Author>);
+                  if (existedAuthor is not null)
+                  {
+                        requiredCourse.Author = existedAuthor;
+                  }
+                  else
+                  {
+                        requiredCourse.Author = new Author() { Name = updateCourseDto.Author };
+                  }
             }
 
             if (updateCourseDto.Categories.Any())
