@@ -12,6 +12,7 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using CourseApiServices.Interfaces.HelpClasses;
 using CourseApiServices.Interfaces.Services;
+using CourseApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,15 +63,7 @@ var app = builder.Build();
 if (app.Environment.IsProduction())
 {
       app.UseExceptionHandler();
-      await using (var scope = app.Services.CreateAsyncScope())
-      {
-            ApplicationContext context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
-
-            if (context.Database.GetPendingMigrations().Any())
-            {
-                  await context.Database.MigrateAsync();
-            }
-      }
+      await app.MigratePendingMigrations();
 }
 
 app.UseStatusCodePages();
@@ -80,31 +73,8 @@ if (app.Environment.IsDevelopment())
       app.UseSwagger();
       app.UseSwaggerUI();
       app.MapHealthChecks("/health");
+      await app.SeedData();
 
-      await using (var scope = app.Services.CreateAsyncScope())
-      {
-            ApplicationContext context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
-
-            if (!context.Courses.Any())
-            {
-                  context.Courses.AddRange(
-                        new Course()
-                        {
-                              CourseName = "C#",
-                              CourseDetails = new CourseDetails
-                              {
-                                    CourseDescription = "Advanced C#",
-                                    CoursePrice = 1000
-                              },
-                              Authors = new List<Author>() { new Author() { Name = "Andrew Troelsen" } },
-                              Categories = new List<Category>() { new Category { Name = "C#" } },
-                              Reviews = new List<Review>() { new Review { ReviewText = "Great course!", ReviewRating = 10.0 } }
-                        }
-                  );
-
-                  await context.SaveChangesAsync();
-            }
-      }
 }
 
 app.AddCourseEndpoints();
