@@ -21,5 +21,7 @@ public class Course
       public required CourseDetails CourseDetails { get; set; }
       public bool IsDeleted { get; set; }
 
+      public Guid Version { get; set; }
+
 
 }

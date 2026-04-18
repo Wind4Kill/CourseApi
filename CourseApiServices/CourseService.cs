@@ -174,6 +174,40 @@ public class CourseService : ICourseService
                   requiredCourse.Categories = await Help.DifferentiateEntity<Category>(updateCourseDto.Categories, existedCategories);
             }
 
-            return await _courseRepository.UpdateCourse();
+            bool isSaved = false;
+
+            while (!isSaved)
+            {
+                  try
+                  {
+
+                        int affectedRows = await _courseRepository.UpdateCourse();
+                        isSaved = true;
+                        return affectedRows;
+
+                  }
+                  catch (DbUpdateConcurrencyException ex)
+                  {
+                        foreach(var entry in ex.Entries)
+                        {
+                              if (entry.Entity is Course)
+                              {
+                                    var databaseValues = await entry.GetDatabaseValuesAsync();
+
+                                    if (databaseValues is null)
+                                    {
+                                          throw new InvalidOperationException("Entity has been deleted by another user.");
+                                    }
+
+                                    entry.OriginalValues.SetValues(databaseValues);
+                              }
+                              else
+                              {
+                                    throw new NotSupportedException("Don't know how to handle concurrency conflicts for" + entry.Metadata.Name);
+                              }
+                        }
+                  }
+            }
+
+            }
       }
-}

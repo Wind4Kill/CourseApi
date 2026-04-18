@@ -39,7 +39,7 @@ public class CourseRepository : ICourseRepository
             Course? course = await _context.Courses.
             Include(c => c.Reviews).
             Include(c => c.Author).
-            Include(c=>c.Categories).
+            Include(c => c.Categories).
             FirstOrDefaultAsync(c => c.CourseId == id);
             
             CourseRating requestedRating = await _context.Ratings.Where(c => c.CourseId == id).FirstAsync();
@@ -52,7 +52,6 @@ public class CourseRepository : ICourseRepository
             return await _context.Courses.Where(c => c.CourseId == id).
             ExecuteUpdateAsync(c => c.
             SetProperty(course => course.IsDeleted, course => true));
-
       }
 
       public async Task<int> UpdateCourse()

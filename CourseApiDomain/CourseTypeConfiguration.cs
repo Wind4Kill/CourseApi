@@ -13,7 +13,7 @@ public class CourseTypeConfiguration : IEntityTypeConfiguration<Course>
             builder.OwnsOne(c => c.CourseDetails);
             builder.Navigation(c => c.CourseDetails).IsRequired();
             builder.HasQueryFilter(c => !c.IsDeleted);
-
             builder.Ignore(c => c.AverageRating);
+            builder.Property(c => c.Version).IsConcurrencyToken();
       }
 }

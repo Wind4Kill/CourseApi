@@ -36,5 +36,17 @@ public class ApplicationContext : DbContext
             FROM "Courses" c
             """);
       }
+      public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+      {
+            var courses = ChangeTracker.Entries<Course>().Where(c => c.State == EntityState.Modified || c.State == EntityState.Added).ToList();
+
+            foreach (var course in courses)
+            {
+                  course.Entity.Version = Guid.NewGuid();
+            }
+
+           return await base.SaveChangesAsync(cancellationToken);
+
+      }
 
 }
