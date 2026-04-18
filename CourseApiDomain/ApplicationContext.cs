@@ -32,8 +32,8 @@ public class ApplicationContext : DbContext
             modelBuilder.Entity<CourseRating>().HasNoKey().ToSqlQuery("""
               SELECT 
                 c."CourseId",
-                get_avg_rating(c."CourseId") AS "AvgRating"
-            FROM "Course" c
+                get_course_rating(c."CourseId") AS "AvgRating"
+            FROM "Courses" c
             """);
       }
 

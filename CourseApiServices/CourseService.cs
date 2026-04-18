@@ -2,6 +2,7 @@
 using CourseApiDomain;
 using CourseApiDomain.Entities;
 using CourseApiServices.Dtos.AuthorDtos;
+using CourseApiServices.Dtos.CategoryDtos;
 using CourseApiServices.Dtos.CourseDtos;
 using CourseApiServices.Dtos.ReviewDtos;
 using CourseApiServices.HelpClasses;
@@ -100,7 +101,13 @@ public class CourseService : ICourseService
                   {
                         AuthorId = course.Author.AuthorId,
                         Name = course.Author.Name
-                  }
+                  },
+                  Categories = course.Categories.
+                  Select(c => new GetCategoryDto
+                  {
+                        CategoryName = c.Name
+                  }).
+                  ToList()
 
             };
 

@@ -1,6 +1,7 @@
 using System;
 using CourseApiDomain.Entities;
 using CourseApiServices.Dtos.AuthorDtos;
+using CourseApiServices.Dtos.CategoryDtos;
 using CourseApiServices.Dtos.ReviewDtos;
 
 namespace CourseApiServices.Dtos.CourseDtos;
@@ -20,6 +21,8 @@ public class GetCourseByIdDto
       public GetAuthorDto Author { get; set; } = null!; 
 
       public List<ReviewDto>? Reviews { get; set; }
+
+      public List<GetCategoryDto> Categories { get; set; } = null!;
 
 
 }

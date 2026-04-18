@@ -38,7 +38,9 @@ public class CourseRepository : ICourseRepository
       public async Task<Course?> GetCourseById(int id)
       {
             Course? course = await _context.Courses.
-            Include(c => c.Reviews).Include(c => c.Author).
+            Include(c => c.Reviews).
+            Include(c => c.Author).
+            Include(c=>c.Categories).
             FirstOrDefaultAsync(c => c.CourseId == id);
             
             CourseRating requestedRating = await _context.Ratings.Where(c => c.CourseId == id).FirstAsync();
