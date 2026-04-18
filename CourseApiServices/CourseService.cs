@@ -42,20 +42,21 @@ public class CourseService : ICourseService
                         CourseDescription = dto.CourseDescription,
                         CoursePrice = dto.CoursePrice
                   },
-                  Author = new Author() { Name = dto.Author },
-                  Categories = dto.Categories.
-                  Select(dto => new Category()
-                  {
-                        Name = dto.CategoryName
-                  }).ToList()
-
             };
+            Author? existedAuthor = (await _authorRepository.GetAuthorsByNames([dto.Author]))?.FirstOrDefault();
 
-            List<string> dtoCategoriesNames = dto.Categories.Select(c => c.CategoryName).ToList();
+            if (existedAuthor is not null)
+            {
+                  addedCourse.Author = existedAuthor;
+            }
+            else
+            {
+                  addedCourse.Author = new Author() { Name = dto.Author };
+            }
 
-            List<Category>? existedCategories = await _categoryRepository.GetCategoriesByNames(dtoCategoriesNames);
+            List<Category>? existedCategories = await _categoryRepository.GetCategoriesByNames(dto.Categories);
 
-            addedCourse.Categories = await Help.DifferentiateEntity<Category>(dtoNames: dtoCategoriesNames, existedValues: existedCategories);
+            addedCourse.Categories = await Help.DifferentiateEntity<Category>(dtoNames: dto.Categories, existedValues: existedCategories);
 
             await _courseRepository.AddCourse(addedCourse);
 
@@ -87,7 +88,7 @@ public class CourseService : ICourseService
 
             if (course is null)
             {
-                  throw new EntityNotFoundException("Course hasn't been founded");
+                  throw new EntityNotFoundException("Course hasn't been found");
             }
 
             GetCourseByIdDto mappedCourse = new GetCourseByIdDto()
@@ -138,22 +139,22 @@ public class CourseService : ICourseService
                   throw new EntityNotFoundException("Course hasn't been found");
             }
 
-            if (!updateCourseDto.CourseName.Equals(requiredCourse.CourseName) && !string.IsNullOrEmpty(updateCourseDto.CourseName))
+            if (!string.IsNullOrEmpty(updateCourseDto.CourseName) && !updateCourseDto.CourseName.Equals(requiredCourse.CourseName))
             {
                   requiredCourse.CourseName = updateCourseDto.CourseName;
             }
 
-            if (!updateCourseDto.CourseDescription.Equals(requiredCourse.CourseDetails.CourseDescription) && !string.IsNullOrEmpty(updateCourseDto.CourseDescription))
+            if (!string.IsNullOrEmpty(updateCourseDto.CourseDescription) && !updateCourseDto.CourseDescription.Equals(requiredCourse.CourseDetails.CourseDescription))
             {
                   requiredCourse.CourseDetails.CourseDescription = updateCourseDto.CourseDescription;
             }
 
-            if (!updateCourseDto.CoursePrice.Equals(requiredCourse.CourseDetails.CoursePrice) && updateCourseDto.CoursePrice is not 0)
+            if (updateCourseDto.CoursePrice.HasValue && !updateCourseDto.CoursePrice.Equals(requiredCourse.CourseDetails.CoursePrice) && updateCourseDto.CoursePrice is not 0)
             {
-                  requiredCourse.CourseDetails.CoursePrice = updateCourseDto.CoursePrice;
+                  requiredCourse.CourseDetails.CoursePrice = updateCourseDto.CoursePrice.Value;
             }
 
-            if (!string.IsNullOrEmpty(updateCourseDto.Author))
+            if (!string.IsNullOrEmpty(updateCourseDto.Author) && requiredCourse.Author.Name != updateCourseDto.Author)
             {
                   Author? existedAuthor = (await _authorRepository.GetAuthorsByNames([updateCourseDto.Author]))?.FirstOrDefault();
 
@@ -167,9 +168,10 @@ public class CourseService : ICourseService
                   }
             }
 
-            if (updateCourseDto.Categories.Any())
+            if (updateCourseDto.Categories is not null && updateCourseDto.Categories.Any(c => c is not null))
             {
-                  requiredCourse.Categories = await Help.DifferentiateEntity<Category>(updateCourseDto.Categories, requiredCourse.Categories as List<Category>);
+                  var existedCategories = await _categoryRepository.GetCategoriesByNames(updateCourseDto.Categories);
+                  requiredCourse.Categories = await Help.DifferentiateEntity<Category>(updateCourseDto.Categories, existedCategories);
             }
 
             return await _courseRepository.UpdateCourse();

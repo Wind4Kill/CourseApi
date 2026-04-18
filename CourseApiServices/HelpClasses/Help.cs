@@ -7,7 +7,9 @@ public static class Help
 {
       public static async Task<List<T>> DifferentiateEntity<T>(List<string> dtoNames, List<T>? existedValues) where T : class, IDifferentiateEntity, new()
       {
+            
             List<T> newValues = new();
+            
             if (existedValues is null)
             {
                   foreach (string name in dtoNames)
@@ -17,21 +19,16 @@ public static class Help
 
                   return newValues;
             }
-            List<T> existingValues = existedValues.Where(t => dtoNames.Contains(t.Name)).ToList();
-            List<string> existingNames = new();
-            foreach (var existingName in existingValues)
+            string[] existedNames = existedValues.Select(c => c.Name).ToArray();
+
+            string[] newNames = dtoNames.Except(existedNames).ToArray();
+            
+            foreach (var name in newNames)
             {
-                  existingNames.Add(existingName.Name);
+                  newValues.Add(new T(){Name=name});
             }
 
-            List<string> newNames = dtoNames.Except(existingNames).ToList();
-
-            foreach (string name in newNames)
-            {
-                  newValues.Add(new T() { Name = name });
-            }
-
-            return existingValues.Concat(newValues).ToList();
+            return existedValues.Concat(newValues).ToList();
 
       }
 }

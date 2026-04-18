@@ -36,7 +36,7 @@ public static class AuthorEndpoints
                   return affectedRows is > 0 ? Results.NoContent() : Results.InternalServerError("Entity couldn't be updated");
             });
 
-            endpointBuilder.MapPost("{id:int}", async (int id, IAuthorService service, CreateCourseDto createdCourseDto, LinkGenerator links) =>
+            endpointBuilder.MapPut("{id:int}", async (int id, IAuthorService service, CreateCourseDto createdCourseDto, LinkGenerator links) =>
             {
                   Course createdCourse = await service.AddCourseToAuthor(id, createdCourseDto);
                   string? link = links.GetPathByName("GetCourseById", new { Id = createdCourse.CourseId });

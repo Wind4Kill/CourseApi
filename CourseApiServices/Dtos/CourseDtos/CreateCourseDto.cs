@@ -21,5 +21,5 @@ public class CreateCourseDto
       [Required]
       public string Author { get; set; } = null!;
       [Required]
-      public List<CreateCategoryDto> Categories { get; set; } = null!;
+      public List<string> Categories { get; set; } = null!;
 }

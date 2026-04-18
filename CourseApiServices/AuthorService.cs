@@ -3,6 +3,8 @@ using CourseApiDomain;
 using CourseApiDomain.Entities;
 using CourseApiServices.Dtos.AuthorDtos;
 using CourseApiServices.Dtos.CourseDtos;
+using CourseApiServices.HelpClasses;
+using CourseApiServices.HelpClasses.Exceptions;
 using CourseApiServices.Interfaces;
 using CourseApiServices.Interfaces.HelpClasses;
 using CourseApiServices.Interfaces.Repositories;
@@ -15,14 +17,24 @@ public class AuthorService : IAuthorService
       readonly IAuthorRepository _authorRepository;
       readonly ICourseRepository _courseRepository;
 
-      public AuthorService(IAuthorRepository authorRepository, ICourseRepository courseRepository)
+      readonly ICategoryRepository _categoryRepository;
+
+      public AuthorService(IAuthorRepository authorRepository, ICourseRepository courseRepository, ICategoryRepository categoryRepository)
       {
             _authorRepository = authorRepository;
             _courseRepository = courseRepository;
+            _categoryRepository = categoryRepository;
       }
 
       public async Task<Author> CreateAuthor(CreateAuthorDto authorDto)
       {
+            Author? existedAuthor = (await _authorRepository.GetAuthorsByNames(names: [authorDto.AuthorName]))?.FirstOrDefault();
+
+            if (existedAuthor is not null)
+            {
+                  throw new EntityAlreadyExistsExceptions("Author entity with specified name already exists.");
+            }
+
             Author createdAuthor = new Author() { Name = authorDto.AuthorName };
             await _authorRepository.CreateAuthor(createdAuthor);
             return createdAuthor;
@@ -65,6 +77,13 @@ public class AuthorService : IAuthorService
       public async Task<Course> AddCourseToAuthor(int authorId, CreateCourseDto courseDto)
       {
 
+            Course? existingCourse = await _courseRepository.FindCourseByName(courseDto.CourseName);
+
+            if(existingCourse is not null)
+            {
+                  throw new EntityAlreadyExistsExceptions("Entity course with specified name already exists.");
+            }
+
             Course createdCourse = new Course()
             {
                   CourseName = courseDto.CourseName,
@@ -74,13 +93,11 @@ public class AuthorService : IAuthorService
                         CoursePrice = courseDto.CoursePrice
                   },
                   Author = new Author { AuthorId = authorId },
-                  Categories = new List<Category>()
             };
 
-            foreach (var category in courseDto.Categories)
-            {
-                  createdCourse.Categories.Add(new Category { Name = category.CategoryName });
-            }
+            List<Category>? existedCategories = await _categoryRepository.GetCategoriesByNames(names: courseDto.Categories);
+
+            createdCourse.Categories = await Help.DifferentiateEntity(dtoNames: courseDto.Categories, existedValues: existedCategories);
 
             await _courseRepository.AddCourse(createdCourse);
 

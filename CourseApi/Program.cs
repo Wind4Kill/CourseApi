@@ -14,6 +14,7 @@ using CourseApiServices.Interfaces.Services;
 using CourseApi;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Diagnostics;
+using CourseApiServices.HelpClasses.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,15 +61,16 @@ if (app.Environment.IsProduction())
 {
       app.UseExceptionHandler(app => app.Run(async context =>
       {
-      var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+            var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
 
-      var (status, title) = exception switch
-      {
-            EntityNotFoundException => (404, "Requested entity wasn't found"),
-            _ => (500, "Internal Server Error")
-      };
+            var (status, title) = exception switch
+            {
+                  EntityNotFoundException => (404, "Requested entity wasn't found"),
+                  EntityAlreadyExistsExceptions => (409, "Requested entity wasn't found"),
+                  _ => (500, "Internal Server Error")
+            };
 
-      context.Response.StatusCode = status;
+            context.Response.StatusCode = status;
 
             await context.Response.WriteAsJsonAsync(new ProblemDetails
             {
@@ -76,7 +78,7 @@ if (app.Environment.IsProduction())
                   Status = status,
                   Detail = exception?.Message
             });
-      
+
       }));
       await app.MigratePendingMigrations();
 }

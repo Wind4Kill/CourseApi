@@ -31,7 +31,6 @@ public class CourseRepository : ICourseRepository
       public IQueryable<Course> GetCourses()
       {
             IQueryable<Course> courses = _context.Courses.AsNoTracking();
-
             return courses;
       }
 
@@ -61,4 +60,9 @@ public class CourseRepository : ICourseRepository
             return await _context.SaveChangesAsync();
       }
 
+      public async Task<Course?> FindCourseByName(string name)
+      {
+            Course? requiredCourse = await _context.Courses.SingleOrDefaultAsync(c => c.CourseName == name);
+            return requiredCourse;
+      }
 }

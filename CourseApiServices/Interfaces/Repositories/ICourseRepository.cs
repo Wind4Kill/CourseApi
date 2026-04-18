@@ -18,5 +18,7 @@ public interface ICourseRepository
 
       Task<int> UpdateCourse();
 
+      Task<Course?> FindCourseByName(string name);
+
 
 }

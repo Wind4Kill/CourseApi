@@ -5,6 +5,7 @@ using CourseApiServices.HelpClasses;
 using CourseApiServices.Interfaces;
 using CourseApiServices.Interfaces.HelpClasses;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace CourseApi.Enpoints;
 
@@ -14,7 +15,7 @@ public static class CourseEndpoints
       {
             var endpointBuilder = app.MapGroup("/courses").WithTags("Courses");
 
-            endpointBuilder.MapPost("", async (CreateCourseDto dto, ICourseService service, LinkGenerator links) =>
+            endpointBuilder.MapPost("", async ([FromBody] CreateCourseDto dto, ICourseService service, LinkGenerator links) =>
            {
                  Course course = await service.CreateCourse(dto);
                  string? link = links.GetPathByName("GetCourseById", new { id = course.CourseId });
@@ -51,8 +52,6 @@ public static class CourseEndpoints
 
                              return affectedRows is > 0 ? Results.NoContent() :
                              Results.Problem(detail: "Entity couldn't be updated", statusCode: 400);
-
-
 
                        }).WithParameterValidation().Produces(204).ProducesProblem(400);
 
