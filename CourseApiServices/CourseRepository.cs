@@ -54,9 +54,9 @@ public class CourseRepository : ICourseRepository
             SetProperty(course => course.IsDeleted, course => true));
       }
 
-      public async Task<int> UpdateCourse()
+      public async Task UpdateCourse()
       {
-            return await _context.SaveChangesAsync();
+           await _context.SaveChangesAsync();
       }
 
       public async Task<Course?> FindCourseByName(string name)

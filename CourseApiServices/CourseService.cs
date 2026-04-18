@@ -130,7 +130,7 @@ public class CourseService : ICourseService
             return await _courseRepository.RemoveCourse(id);
       }
 
-      public async Task<int> UpdateCourse(int id, UpdateCourseDto updateCourseDto)
+      public async Task UpdateCourse(int id, UpdateCourseDto updateCourseDto)
       {
             Course? requiredCourse = await _courseRepository.GetCourseById(id);
 
@@ -181,14 +181,12 @@ public class CourseService : ICourseService
                   try
                   {
 
-                        int affectedRows = await _courseRepository.UpdateCourse();
+                        await _courseRepository.UpdateCourse();
                         isSaved = true;
-                        return affectedRows;
-
                   }
                   catch (DbUpdateConcurrencyException ex)
                   {
-                        foreach(var entry in ex.Entries)
+                        foreach (var entry in ex.Entries)
                         {
                               if (entry.Entity is Course)
                               {
@@ -209,5 +207,6 @@ public class CourseService : ICourseService
                   }
             }
 
-            }
+
       }
+}

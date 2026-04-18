@@ -48,10 +48,10 @@ public static class CourseEndpoints
             endpointBuilder.MapPatch("{id:int}", async (int id, UpdateCourseDto updatedCourse, ICourseService service) =>
                        {
 
-                             int affectedRows = await service.UpdateCourse(id, updatedCourse);
+                             await service.UpdateCourse(id, updatedCourse);
 
-                             return affectedRows is > 0 ? Results.NoContent() :
-                             Results.Problem(detail: "Entity couldn't be updated", statusCode: 400);
+                             return Results.NoContent();
+
 
                        }).WithParameterValidation().Produces(204).ProducesProblem(400);
 
