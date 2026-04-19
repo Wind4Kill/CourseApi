@@ -81,7 +81,6 @@ if (app.Environment.IsProduction())
 
       }));
       await app.MigratePendingMigrations();
-      await app.SeedData();
 }
 
 app.UseStatusCodePages();
@@ -91,7 +90,7 @@ if (app.Environment.IsDevelopment())
       app.UseSwagger();
       app.UseSwaggerUI();
       app.MapHealthChecks("/health");
-      // await app.SeedData();
+      await app.SeedData();
 
 }
 
