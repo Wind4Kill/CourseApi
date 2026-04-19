@@ -10,6 +10,7 @@ namespace CourseApiDomain.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+
             migrationBuilder.AlterColumn<string>(
                 name: "ReviewText",
                 table: "Review",
@@ -105,6 +106,8 @@ namespace CourseApiDomain.Migrations
                 oldClrType: typeof(string),
                 oldType: "character varying(100)",
                 oldMaxLength: 100);
+
+
         }
     }
 }

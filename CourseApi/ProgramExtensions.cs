@@ -14,10 +14,16 @@ public static class ProgramExtensions
             await using (var scope = app.Services.CreateAsyncScope())
             {
                   var context = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
-                  if(context.Database.GetPendingMigrations().Any())
+                  var strategy = context.Database.CreateExecutionStrategy();
+
+                  await strategy.ExecuteAsync(async () =>
                   {
-                        await context.Database.MigrateAsync();
-                  }
+                        if (context.Database.GetPendingMigrations().Any())
+                        {
+                              await context.Database.MigrateAsync();
+                        }
+                  });
+
 
             }
       }
@@ -38,7 +44,7 @@ public static class ProgramExtensions
                                          CourseDescription = "Advanced C#",
                                          CoursePrice = 1000
                                    },
-                                   Author =  new Author() { Name = "Andrew Troelsen" } ,
+                                   Author = new Author() { Name = "Andrew Troelsen" },
                                    Categories = new List<Category>() { new Category { Name = "C#" } },
                                    Reviews = new List<Review>() { new Review { ReviewText = "Great course!", ReviewRating = 10.0 } }
                              }

@@ -16,6 +16,9 @@
 # Logs
 *.log
 
+#Configs
+*.env
+
 # OS files
 .DS_Store
 Thumbs.db

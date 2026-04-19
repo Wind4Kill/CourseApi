@@ -20,17 +20,6 @@ namespace CourseApiDomain.Migrations
                 nullable: false,
                 defaultValue: 0);
 
-            migrationBuilder.CreateTable(
-                name: "Ratings",
-                columns: table => new
-                {
-                    CourseId = table.Column<int>(type: "integer", nullable: false),
-                    AvgRating = table.Column<double>(type: "double precision", nullable: true)
-                },
-                constraints: table =>
-                {
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_Courses_AuthorId",
                 table: "Courses",
