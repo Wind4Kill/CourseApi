@@ -1,19 +1,16 @@
 using CourseApi.Enpoints;
-using CourseApiDomain;
-using CourseApiServices;
-using CourseApiServices.Interfaces;
-using CourseApiServices.Interfaces.Repositories;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using CourseApiDomain.Entities;
-using System.Reflection;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore.Diagnostics;
-using CourseApiServices.Interfaces.HelpClasses;
-using CourseApiServices.Interfaces.Services;
 using CourseApi;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Diagnostics;
+using CourseApiDomain;
+using Microsoft.EntityFrameworkCore;
+using CourseApiServices.Interfaces;
+using CourseApiServices.Interfaces.Services;
+using CourseApiServices.Interfaces.Repositories;
+using CourseApiServices;
+using CourseApiServices.Interfaces.HelpClasses;
 using CourseApiServices.HelpClasses.Exceptions;
 
 var builder = WebApplication.CreateBuilder(args);

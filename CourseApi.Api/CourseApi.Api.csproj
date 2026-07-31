@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../CourseApi.Application/CourseApi.Application.csproj" />
     <ProjectReference Include="../CourseApiDomain/CourseApiDomain.csproj" />
     <ProjectReference Include="../CourseApiServices/CourseApiServices.csproj" />
   </ItemGroup>
