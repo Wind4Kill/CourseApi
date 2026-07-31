@@ -25,16 +25,25 @@ public static class CourseEndpoints
 
             endpointBuilder.MapGet("", async (ICourseService service, [AsParameters] Filtering options) =>
             {
-                  SortFilterOptions sortFilterOptions = new()
+                  SortFilterOptions sortFilterOptions = new();
+                  if (Enum.TryParse<SortingOptions>(options.Sorting!, true, out SortingOptions sortingOptions))
                   {
-                        Sorting = (SortingOptions)Enum.Parse(typeof(SortingOptions), options.Sorting!),
-                        Filter = (FilterOptions)Enum.Parse(typeof(FilterOptions), options.Filter!),
-                        FilterValue = options.FilterValue,
-                        PageNum = options.PageNum!.Value
-                  };
+                        sortFilterOptions.Sorting = sortingOptions;
+                  }
+                  if (Enum.TryParse<FilterOptions>(options.Filter, true, out FilterOptions filterOptions))
+                  {
+                        sortFilterOptions.Filter = filterOptions;
+                  }
+                  if (!string.IsNullOrEmpty(options.FilterValue))
+                  {
+                        sortFilterOptions.FilterValue = options.FilterValue;
+                  }
+                  if (options.PageNum is not null && options.PageNum.HasValue)
+                  {
+                        sortFilterOptions.PageNum = options.PageNum.Value;
+                  }
 
                   List<GetCourseDto> courses = await service.GetCourses(sortFilterOptions!);
-
                   return Results.Ok(courses);
 
             }).Produces(200);

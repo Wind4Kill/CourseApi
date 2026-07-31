@@ -6,10 +6,20 @@ namespace CourseApiServices.Interfaces.HelpClasses;
 public class SortFilterOptions
 {
       public FilterOptions Filter { get; set; }
-      public SortingOptions Sorting { get; set; } 
+      public SortingOptions Sorting { get; set; }
 
       public string? FilterValue { get; set; }
 
       public int PageNum { get; set; }
+
+      public SortFilterOptions(SortingOptions sortingOptions = SortingOptions.Default,
+       FilterOptions filterOptions = FilterOptions.Default,
+       string? filterValue = null, int pageNum = 1)
+      {
+            Sorting = sortingOptions;
+            Filter = filterOptions;
+            FilterValue = filterValue;
+            PageNum = pageNum;
+      }
 
 }
