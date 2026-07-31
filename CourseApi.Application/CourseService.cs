@@ -9,13 +9,9 @@ using CourseApiServices.HelpClasses;
 using CourseApiServices.Interfaces;
 using CourseApiServices.Interfaces.HelpClasses;
 using CourseApiServices.Interfaces.Repositories;
-using CourseApiServices.Interfaces.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace CourseApiServices;
-
-
 
 public class CourseService : ICourseService
 {
@@ -84,7 +80,7 @@ public class CourseService : ICourseService
 
       public async Task<GetCourseByIdDto?> GetCourseById(int id)
       {
-            Course? course = await _courseRepository.GetCourseById(id);
+            Course course = await SearchForCourse(id);
 
             if (course is null)
             {
@@ -127,17 +123,13 @@ public class CourseService : ICourseService
 
       public async Task<int> RemoveCourse(int id)
       {
-            return await _courseRepository.RemoveCourse(id);
+            Course requestedCourse = await SearchForCourse(id);
+            return await _courseRepository.RemoveCourse(requestedCourse);
       }
 
       public async Task UpdateCourse(int id, UpdateCourseDto updateCourseDto)
       {
-            Course? requiredCourse = await _courseRepository.GetCourseById(id);
-
-            if (requiredCourse is null)
-            {
-                  throw new EntityNotFoundException("Course hasn't been found");
-            }
+            Course requiredCourse = await SearchForCourse(id);
 
             if (!string.IsNullOrEmpty(updateCourseDto.CourseName) && !updateCourseDto.CourseName.Equals(requiredCourse.CourseName))
             {
@@ -180,7 +172,6 @@ public class CourseService : ICourseService
             {
                   try
                   {
-
                         await _courseRepository.UpdateCourse();
                         isSaved = true;
                   }
@@ -209,4 +200,17 @@ public class CourseService : ICourseService
 
 
       }
+
+      private async Task<Course> SearchForCourse(int id)
+      {
+            Course? requestedCourse = await _courseRepository.GetCourseById(id);
+
+            if (requestedCourse is null)
+            {
+                  throw new EntityNotFoundException($"Course with {id} ID hasn't been found");
+            }
+
+            return requestedCourse!;
+      }
+
 }
