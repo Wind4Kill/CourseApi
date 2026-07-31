@@ -6,10 +6,6 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Diagnostics;
 using CourseApiDomain;
 using Microsoft.EntityFrameworkCore;
-using CourseApiServices.Interfaces;
-using CourseApiServices.Interfaces.Services;
-using CourseApiServices.Interfaces.Repositories;
-using CourseApiServices;
 using CourseApiServices.Interfaces.HelpClasses;
 using CourseApiServices.HelpClasses.Exceptions;
 
@@ -21,6 +17,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 
 builder.Services.AddProblemDetails();
+builder.Services.AddServices();
 
 if (builder.Environment.IsDevelopment())
 {
