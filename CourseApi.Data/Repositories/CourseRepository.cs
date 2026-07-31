@@ -47,11 +47,10 @@ public class CourseRepository : ICourseRepository
             return course;
       }
 
-      public async Task<int> RemoveCourse(int id)
+      public async Task<int> RemoveCourse(Course course)
       {
-            return await _context.Courses.Where(c => c.CourseId == id).
-            ExecuteUpdateAsync(c => c.
-            SetProperty(course => course.IsDeleted, course => true));
+            course.IsDeleted = true;
+            return await _context.SaveChangesAsync();
       }
 
       public async Task UpdateCourse()
@@ -61,7 +60,9 @@ public class CourseRepository : ICourseRepository
 
       public async Task<Course?> FindCourseByName(string name)
       {
-            Course? requiredCourse = await _context.Courses.SingleOrDefaultAsync(c => c.CourseName == name);
+            Course? requiredCourse = await _context.Courses
+            .SingleOrDefaultAsync(c => c.CourseName == name);
+            
             return requiredCourse;
       }
 }
