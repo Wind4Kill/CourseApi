@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../CourseApiDomain/CourseApiDomain.csproj" />
+    <ProjectReference Include="../CourseApi.Domain/CourseApiDomain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
