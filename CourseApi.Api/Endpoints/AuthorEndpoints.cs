@@ -12,7 +12,7 @@ public static class AuthorEndpoints
 {
       public static void AddAuthorEndpoints(this WebApplication app)
       {
-            var endpointBuilder = app.MapGroup("/authors").WithTags("Authors");
+            var endpointBuilder = app.MapGroup("api/authors").WithTags("Authors");
 
             endpointBuilder.MapPost("", async (IAuthorService service, CreateAuthorDto authorDto, LinkGenerator links) =>
             {
@@ -33,8 +33,8 @@ public static class AuthorEndpoints
             {
                   int affectedRows = await service.DeleteAuthor(id);
 
-                  return affectedRows is > 0 ? Results.NoContent() : Results.InternalServerError("Entity couldn't be updated");
-            });
+                  return Results.NoContent();
+            }).Produces(204);
 
             endpointBuilder.MapPut("{id:int}", async (int id, IAuthorService service, CreateCourseDto createdCourseDto, LinkGenerator links) =>
             {
