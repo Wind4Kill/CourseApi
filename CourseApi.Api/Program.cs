@@ -16,6 +16,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
       options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
+builder.Services.AddMemoryCache();
 builder.Services.AddProblemDetails();
 builder.Services.AddServices();
 
