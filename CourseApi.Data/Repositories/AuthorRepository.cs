@@ -31,13 +31,15 @@ public class AuthorRepository : IAuthorRepository
 
       public async Task<Author?> GetAuthorById(int id)
       {
-            Author? requestedAuthor = await _context.Authors.Include(a=>a.Courses).SingleOrDefaultAsync(a => a.AuthorId == id);
+            Author? requestedAuthor = await _context.Authors.Include(a => a.Courses).
+            SingleOrDefaultAsync(a => a.AuthorId == id);
             return requestedAuthor;
       }
 
       public async Task<List<Author>?> GetAuthorsByNames(List<string> names)
       {
-            List<Author>? requestedAuthors = await _context.Authors.Where(a=>names.Contains(a.Name)).ToListAsync();
+            List<Author>? requestedAuthors = await _context.Authors.
+            Where(a=>names.Contains(a.Name)).ToListAsync();
             return requestedAuthors;
       }
 

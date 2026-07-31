@@ -17,7 +17,8 @@ public class CategoryRepository:ICategoryRepository
 
       public async Task<List<Category>?> GetCategoriesByNames(List<string> names)
       {
-            List<Category>? requestedCategories = await _context.Categories.Where(c=>names.Contains(c.Name)).ToListAsync();
+            List<Category>? requestedCategories = await _context.Categories.
+            Where(c=>names.Contains(c.Name)).ToListAsync();
 
             return requestedCategories;
       }

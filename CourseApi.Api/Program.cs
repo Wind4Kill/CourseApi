@@ -45,14 +45,8 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
 
 });
 
-builder.Services.AddScoped<ICourseService, CourseService>();
-builder.Services.AddScoped<IAuthorService, AuthorService>();
-
-builder.Services.AddScoped<ICourseRepository, CourseRepository>();
-builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-
 var app = builder.Build();
+app.UseStatusCodePages();
 
 if (app.Environment.IsProduction())
 {
@@ -80,7 +74,6 @@ if (app.Environment.IsProduction())
       await app.MigratePendingMigrations();
 }
 
-app.UseStatusCodePages();
 
 if (app.Environment.IsDevelopment())
 {

@@ -1,6 +1,10 @@
 using System;
 using CourseApiDomain;
 using CourseApiDomain.Entities;
+using CourseApiServices;
+using CourseApiServices.Interfaces;
+using CourseApiServices.Interfaces.Repositories;
+using CourseApiServices.Interfaces.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseApi;
@@ -53,5 +57,17 @@ public static class ProgramExtensions
                         await context.SaveChangesAsync();
                   }
             }
+      }
+
+      public static IServiceCollection AddServices(this IServiceCollection services)
+      {
+            services.AddScoped<ICourseService, CourseService>();
+            services.AddScoped<IAuthorService, AuthorService>();
+
+            services.AddScoped<ICourseRepository, CourseRepository>();
+            services.AddScoped<IAuthorRepository, AuthorRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+            return services;
       }
 }
