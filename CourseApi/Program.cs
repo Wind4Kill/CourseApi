@@ -23,6 +23,16 @@ builder.Services.ConfigureHttpJsonOptions(options =>
       options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
+if (builder.Environment.IsProduction())
+{
+      builder.Services.AddStackExchangeRedisOutputCache(options =>
+      {
+            options.Configuration = builder.Configuration.GetConnectionString("RedisConnectionString");
+            options.InstanceName = "CourseApi_cache";
+      });
+}
+
+builder.Services.AddOutputCache();
 builder.Services.AddProblemDetails();
 
 if (builder.Environment.IsDevelopment())
@@ -38,7 +48,7 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
       options.UseNpgsql(connection, options =>
       options.EnableRetryOnFailure());
 
-      if (!builder.Environment.IsProduction())
+      if (!builder.Environment.IsDevelopment())
       {
             options.LogTo((message) => Debug.WriteLine(message), LogLevel.Information)
             .EnableSensitiveDataLogging().
@@ -48,12 +58,7 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
 
 });
 
-builder.Services.AddScoped<ICourseService, CourseService>();
-builder.Services.AddScoped<IAuthorService, AuthorService>();
-
-builder.Services.AddScoped<ICourseRepository, CourseRepository>();
-builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddServices();
 
 var app = builder.Build();
 
@@ -91,10 +96,11 @@ if (app.Environment.IsDevelopment())
       app.UseSwaggerUI();
       app.MapHealthChecks("/health");
       await app.SeedData();
-
 }
 
 app.AddCourseEndpoints();
 app.AddAuthorEndpoints();
+app.UseOutputCache();
+
 
 app.Run();
