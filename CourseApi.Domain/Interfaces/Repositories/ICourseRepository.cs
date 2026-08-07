@@ -6,17 +6,17 @@ namespace CourseApiServices.Interfaces;
 
 public interface ICourseRepository
 {
-      Task AddCourse(Course addedCourse);
+      Task<Course> AddCourse(Course addedCourse, CancellationToken cancellationToken);
 
       IQueryable<Course> GetCourses();
 
-      Task<Course?> GetCourseById(int id);
+      Task<Course?> GetCourseById(int id, CancellationToken cancellationToken);
 
-      Task<int> RemoveCourse(Course course);
+      Task RemoveCourse(Course course, CancellationToken cancellationToken);
 
-      Task UpdateCourse();
+      Task UpdateCourse(CancellationToken cancellationToken);
 
-      Task<Course?> FindCourseByName(string name);
+      Task<Course?> FindCourseByName(string name, CancellationToken cancellationToken);
 
 
 }

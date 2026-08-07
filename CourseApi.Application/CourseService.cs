@@ -31,7 +31,7 @@ public class CourseService : ICourseService
             _cache = cache;
       }
 
-      public async Task<Course> CreateCourse(CreateCourseDto dto)
+      public async Task<GetCourseByIdDto> CreateCourse(CreateCourseDto dto, CancellationToken cancellationToken)
       {
 
             Course addedCourse = new Course()
@@ -43,7 +43,7 @@ public class CourseService : ICourseService
                         CoursePrice = dto.CoursePrice
                   },
             };
-            Author? existedAuthor = (await _authorRepository.GetAuthorsByNames([dto.Author]))?.FirstOrDefault();
+            Author? existedAuthor = (await _authorRepository.GetAuthorsByNames([dto.Author], cancellationToken))?.FirstOrDefault();
 
             if (existedAuthor is not null)
             {
@@ -54,15 +54,32 @@ public class CourseService : ICourseService
                   addedCourse.Author = new Author() { Name = dto.Author };
             }
 
-            List<Category>? existedCategories = await _categoryRepository.GetCategoriesByNames(dto.Categories);
+            List<Category>? existedCategories = await _categoryRepository.GetCategoriesByNames(dto.Categories, cancellationToken);
             addedCourse.Categories = await EntityDifferentiator.DifferentiateEntity<Category>(dtoNames: dto.Categories, existedValues: existedCategories);
 
-            await _courseRepository.AddCourse(addedCourse);
+            addedCourse = await _courseRepository.AddCourse(addedCourse, cancellationToken);
 
-            return addedCourse;
+            GetCourseByIdDto mappedCourse = new GetCourseByIdDto()
+            {
+                  CourseId = addedCourse.CourseId,
+                  CourseName = addedCourse.CourseName,
+                  CourseDescription = addedCourse.CourseDetails.CourseDescription,
+                  CoursePrice = addedCourse.CourseDetails.CoursePrice,
+                  CourseRating = addedCourse.AverageRating,
+                  Author = new GetAuthorDto() { AuthorId = addedCourse.AuthorId, Name = addedCourse.Author.Name },
+                  Categories = addedCourse.Categories.Select(c => new GetCategoryDto() { CategoryName = c.Name }).ToList(),
+                  Reviews = addedCourse.Reviews is null ? null :
+                  addedCourse.Reviews.Select(r => new ReviewDto()
+                  {
+                        ReviewRating = r.ReviewRating,
+                        ReviewText = r.ReviewText
+                  }).ToList()
+            };
+
+            return mappedCourse;
       }
 
-      public async Task<List<GetCourseDto>> GetCourses(SortFilterOptions options)
+      public async Task<List<GetCourseDto>> GetCourses(SortFilterOptions options, CancellationToken cancellationToken)
       {
             IQueryable<Course> courses = _courseRepository.GetCourses();
 
@@ -76,12 +93,12 @@ public class CourseService : ICourseService
                               CourseName = c.CourseName,
                               CoursePrice = c.CourseDetails.CoursePrice,
                               CourseRating = CourseFunctions.GetCourseRating(c.CourseId)
-                        }).ToListAsync();
+                        }).ToListAsync(cancellationToken);
 
             return mappedCourses;
       }
 
-      public async Task<GetCourseByIdDto?> GetCourseById(int id)
+      public async Task<GetCourseByIdDto?> GetCourseById(int id, CancellationToken cancellationToken)
       {
             string key = GetKeyString(id);
 
@@ -90,7 +107,7 @@ public class CourseService : ICourseService
                   entry.SetAbsoluteExpiration(TimeSpan.FromHours(3));
                   entry.SetSlidingExpiration(TimeSpan.FromHours(1));
 
-                  Course course = await SearchForCourse(id);
+                  Course course = await SearchForCourse(id, cancellationToken);
 
                   GetCourseByIdDto mappedCourse = new GetCourseByIdDto()
                   {
@@ -109,18 +126,13 @@ public class CourseService : ICourseService
                         {
                               CategoryName = c.Name
                         }).
-                        ToList()
-
-                  };
-
-                  if (course.Reviews is not null)
-                  {
-                        mappedCourse.Reviews = course.Reviews.Select(r => new ReviewDto()
+                        ToList(),
+                        Reviews = course.Reviews is null ? null : course.Reviews.Select(r => new ReviewDto()
                         {
                               ReviewText = r.ReviewText,
                               ReviewRating = r.ReviewRating
-                        }).ToList();
-                  }
+                        }).ToList()
+                  };
 
                   return mappedCourse!;
 
@@ -129,19 +141,18 @@ public class CourseService : ICourseService
 
       }
 
-      public async Task<int> RemoveCourse(int id)
+      public async Task RemoveCourse(int id, CancellationToken cancellationToken)
       {
             string key = GetKeyString(id);
-            Course requestedCourse = await SearchForCourse(id);
-            int result = await _courseRepository.RemoveCourse(requestedCourse);
+            Course requestedCourse = await SearchForCourse(id, cancellationToken);
+            await _courseRepository.RemoveCourse(requestedCourse, cancellationToken);
             _cache.Remove(key);
-            return result;
       }
 
-      public async Task UpdateCourse(int id, UpdateCourseDto updateCourseDto)
+      public async Task UpdateCourse(int id, UpdateCourseDto updateCourseDto, CancellationToken cancellationToken)
       {
             string key = GetKeyString(id);
-            Course requiredCourse = await SearchForCourse(id);
+            Course requiredCourse = await SearchForCourse(id, cancellationToken);
 
             if (!string.IsNullOrEmpty(updateCourseDto.CourseName) && !updateCourseDto.CourseName.Equals(requiredCourse.CourseName))
             {
@@ -160,7 +171,7 @@ public class CourseService : ICourseService
 
             if (!string.IsNullOrEmpty(updateCourseDto.Author) && requiredCourse.Author.Name != updateCourseDto.Author)
             {
-                  Author? existedAuthor = (await _authorRepository.GetAuthorsByNames([updateCourseDto.Author]))?.FirstOrDefault();
+                  Author? existedAuthor = (await _authorRepository.GetAuthorsByNames([updateCourseDto.Author], cancellationToken))?.FirstOrDefault();
 
                   if (existedAuthor is not null)
                   {
@@ -174,7 +185,7 @@ public class CourseService : ICourseService
 
             if (updateCourseDto.Categories is not null && updateCourseDto.Categories.Any(c => c is not null))
             {
-                  var existedCategories = await _categoryRepository.GetCategoriesByNames(updateCourseDto.Categories);
+                  var existedCategories = await _categoryRepository.GetCategoriesByNames(updateCourseDto.Categories, cancellationToken);
                   requiredCourse.Categories = await EntityDifferentiator.DifferentiateEntity<Category>(updateCourseDto.Categories, existedCategories);
             }
 
@@ -184,7 +195,7 @@ public class CourseService : ICourseService
             {
                   try
                   {
-                        await _courseRepository.UpdateCourse();
+                        await _courseRepository.UpdateCourse(cancellationToken);
                         _cache.Remove(key);
                         isSaved = true;
                   }
@@ -214,9 +225,9 @@ public class CourseService : ICourseService
 
       }
 
-      private async Task<Course> SearchForCourse(int id)
+      private async Task<Course> SearchForCourse(int id, CancellationToken cancellationToken)
       {
-            Course? requestedCourse = await _courseRepository.GetCourseById(id);
+            Course? requestedCourse = await _courseRepository.GetCourseById(id, cancellationToken);
 
             if (requestedCourse is null)
             {

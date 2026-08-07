@@ -15,43 +15,46 @@ public static class CourseEndpoints
       {
             var endpointBuilder = app.MapGroup("api/courses").WithTags("Courses");
 
-            endpointBuilder.MapPost("", async ([FromBody] CreateCourseDto dto, ICourseService service, LinkGenerator links) =>
+            endpointBuilder.MapPost("", async ([FromBody] CreateCourseDto dto,
+             ICourseService service, LinkGenerator links, CancellationToken cancellationToken) =>
            {
-                 Course course = await service.CreateCourse(dto);
+                 GetCourseByIdDto course = await service.CreateCourse(dto, cancellationToken);
                  string? link = links.GetPathByName("GetCourseById", new { id = course.CourseId });
                  return Results.Created(link, course);
 
            }).WithParameterValidation().Produces(201);
 
-            endpointBuilder.MapGet("", async (ICourseService service, [AsParameters] Filtering options) =>
+            endpointBuilder.MapGet("", async (ICourseService service, [AsParameters] Filtering options, CancellationToken cancellationToken) =>
             {
                   SortFilterOptions sortFilterOptions = new(sortingOptions: options.Sorting, filterOptions: options.Filter,
                    filterValue: options.FilterValue, page: options.PageNum);
 
-                  List<GetCourseDto> courses = await service.GetCourses(sortFilterOptions!);
+                  List<GetCourseDto> courses = await service.GetCourses(sortFilterOptions!, cancellationToken);
                   return Results.Ok(courses);
 
             }).AddEndpointFilter(new FiltrationFilter()).
             Produces(200).CacheOutput(builder => builder.Expire(TimeSpan.FromSeconds(120)).Tag("all-books"));
 
-            endpointBuilder.MapGet("{id:int}", async (ICourseService service, int id) =>
+            endpointBuilder.MapGet("{id:int}", async (ICourseService service, int id, CancellationToken cancellationToken) =>
             {
-                  GetCourseByIdDto? requestedCourse = await service.GetCourseById(id);
+                  GetCourseByIdDto? requestedCourse = await service.GetCourseById(id, cancellationToken);
                   return Results.Ok(requestedCourse);
             }).Produces(200).WithName("GetCourseById");
 
-            endpointBuilder.MapPatch("{id:int}", async (int id, UpdateCourseDto updatedCourse, ICourseService service, IOutputCacheStore store) =>
+            endpointBuilder.MapPatch("{id:int}", async (int id, UpdateCourseDto updatedCourse,
+            ICourseService service, IOutputCacheStore store, CancellationToken cancellationToken) =>
                        {
-                             await service.UpdateCourse(id, updatedCourse);
+                             await service.UpdateCourse(id, updatedCourse, cancellationToken);
                              await store.EvictByTagAsync("all-books",default);
 
                              return Results.NoContent();
 
                        }).WithParameterValidation().Produces(204);
 
-            endpointBuilder.MapDelete("{id:int}", async (int id, ICourseService service, IOutputCacheStore store) =>
+            endpointBuilder.MapDelete("{id:int}", async (int id, ICourseService service,
+             IOutputCacheStore store, CancellationToken cancellationToken) =>
             {
-                  int affectedRows = await service.RemoveCourse(id);
+                  await service.RemoveCourse(id, cancellationToken);
                   await store.EvictByTagAsync("all-books", default);
 
                   return Results.NoContent();

@@ -6,12 +6,12 @@ namespace CourseApiServices.Interfaces.Repositories;
 
 public interface IAuthorRepository
 {
-      Task<List<Author>?> GetAuthorsByNames(List<string> names);
+      Task<List<Author>?> GetAuthorsByNames(List<string> names, CancellationToken cancellationToken);
 
-      Task CreateAuthor(Author author);
+      Task CreateAuthor(Author author, CancellationToken cancellationToken);
 
-      Task<Author?> GetAuthorById(int id);
+      Task<Author?> GetAuthorById(int id, CancellationToken cancellationToken);
 
-      Task<int> DeleteAuthor(int id);
+      Task DeleteAuthor(int id, CancellationToken cancellationToken);
 
 }

@@ -8,12 +8,12 @@ namespace CourseApiServices.Interfaces.Services;
 
 public interface IAuthorService
 {
-      Task<Author> CreateAuthor(CreateAuthorDto authorDto);
-      Task<GetAuthorDto> GetAuthorById(int id);
+      Task<Author> CreateAuthor(CreateAuthorDto authorDto, CancellationToken cancellationToken);
+      Task<GetAuthorDto> GetAuthorById(int id, CancellationToken cancellationToken);
 
-      Task<int> DeleteAuthor(int id);
+      Task DeleteAuthor(int id, CancellationToken cancellationToken);
 
-      Task<Course> AddCourseToAuthor(int authorId, CreateCourseDto courseDto);
+      Task<GetCourseByIdDto> AddCourseToAuthor(int authorId, CreateCourseDto courseDto, CancellationToken cancellationToken);
             
 
 }

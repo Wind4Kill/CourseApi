@@ -6,7 +6,6 @@ using CourseApiDomain.Views;
 using CourseApiServices.Dtos.AuthorDtos;
 using CourseApiServices.Dtos.CourseDtos;
 using CourseApiServices.Dtos.ReviewDtos;
-using CourseApiServices.Interfaces.HelpClasses;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseApiServices.Interfaces.Repositories;
@@ -21,11 +20,11 @@ public class CourseRepository : ICourseRepository
       {
             _context = context;
       }
-      public async Task AddCourse(Course addedCourse)
+      public async Task<Course> AddCourse(Course addedCourse, CancellationToken cancellationToken)
       {
             _context.Add(addedCourse);
-            await _context.SaveChangesAsync();
-
+            await _context.SaveChangesAsync(cancellationToken);
+            return addedCourse;
       }
 
       public IQueryable<Course> GetCourses()
@@ -34,34 +33,34 @@ public class CourseRepository : ICourseRepository
             return courses;
       }
 
-      public async Task<Course?> GetCourseById(int id)
+      public async Task<Course?> GetCourseById(int id, CancellationToken cancellationToken)
       {
             Course? course = await _context.Courses.
             Include(c => c.Reviews).
             Include(c => c.Author).
             Include(c => c.Categories).
-            FirstOrDefaultAsync(c => c.CourseId == id);
+            FirstOrDefaultAsync(c => c.CourseId == id, cancellationToken);
             
-            CourseRating requestedRating = await _context.Ratings.Where(c => c.CourseId == id).FirstAsync();
+            CourseRating requestedRating = await _context.Ratings.Where(c => c.CourseId == id).FirstAsync(cancellationToken);
             course?.AverageRating = requestedRating.AvgRating;
             return course;
       }
 
-      public async Task<int> RemoveCourse(Course course)
+      public async Task RemoveCourse(Course course, CancellationToken cancellationToken)
       {
             course.IsDeleted = true;
-            return await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
       }
 
-      public async Task UpdateCourse()
+      public async Task UpdateCourse(CancellationToken cancellationToken)
       {
-           await _context.SaveChangesAsync();
+           await _context.SaveChangesAsync(cancellationToken);
       }
 
-      public async Task<Course?> FindCourseByName(string name)
+      public async Task<Course?> FindCourseByName(string name, CancellationToken cancellationToken)
       {
             Course? requiredCourse = await _context.Courses
-            .SingleOrDefaultAsync(c => c.CourseName == name);
+            .SingleOrDefaultAsync(c => c.CourseName == name, cancellationToken);
             
             return requiredCourse;
       }
