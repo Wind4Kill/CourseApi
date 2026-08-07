@@ -9,13 +9,10 @@ using CourseApiServices.HelpClasses;
 using CourseApiServices.Interfaces;
 using CourseApiServices.Interfaces.HelpClasses;
 using CourseApiServices.Interfaces.Repositories;
-using CourseApiServices.Interfaces.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace CourseApiServices;
-
-
 
 public class CourseService : ICourseService
 {
@@ -24,11 +21,14 @@ public class CourseService : ICourseService
       readonly ICategoryRepository _categoryRepository;
       readonly ICourseRepository _courseRepository;
 
-      public CourseService(ICourseRepository courseRepository, IAuthorRepository authorRepository, ICategoryRepository categoryRepository)
+      readonly IMemoryCache _cache;
+
+      public CourseService(ICourseRepository courseRepository, IAuthorRepository authorRepository, ICategoryRepository categoryRepository, IMemoryCache cache)
       {
             _courseRepository = courseRepository;
             _authorRepository = authorRepository;
             _categoryRepository = categoryRepository;
+            _cache = cache;
       }
 
       public async Task<Course> CreateCourse(CreateCourseDto dto)
@@ -84,60 +84,65 @@ public class CourseService : ICourseService
 
       public async Task<GetCourseByIdDto?> GetCourseById(int id)
       {
-            Course? course = await _courseRepository.GetCourseById(id);
+            string key = $"Course:{id}";
 
-            if (course is null)
+            GetCourseByIdDto? requestedCourse = await _cache.GetOrCreateAsync(key, async entry =>
             {
-                  throw new EntityNotFoundException("Course hasn't been found");
-            }
+                  entry.SetAbsoluteExpiration(TimeSpan.FromHours(3));
+                  entry.SetSlidingExpiration(TimeSpan.FromHours(1));
 
-            GetCourseByIdDto mappedCourse = new GetCourseByIdDto()
-            {
-                  CourseId = course.CourseId,
-                  CourseName = course.CourseName,
-                  CoursePrice = course.CourseDetails.CoursePrice,
-                  CourseDescription = course.CourseDetails.CourseDescription,
-                  CourseRating = course.AverageRating,
-                  Author = new GetAuthorDto()
+                  Course course = await SearchForCourse(id);
+
+                  GetCourseByIdDto mappedCourse = new GetCourseByIdDto()
                   {
-                        AuthorId = course.Author.AuthorId,
-                        Name = course.Author.Name
-                  },
-                  Categories = course.Categories.
-                  Select(c => new GetCategoryDto
+                        CourseId = course.CourseId,
+                        CourseName = course.CourseName,
+                        CoursePrice = course.CourseDetails.CoursePrice,
+                        CourseDescription = course.CourseDetails.CourseDescription,
+                        CourseRating = course.AverageRating,
+                        Author = new GetAuthorDto()
+                        {
+                              AuthorId = course.Author.AuthorId,
+                              Name = course.Author.Name
+                        },
+                        Categories = course.Categories.
+                        Select(c => new GetCategoryDto
+                        {
+                              CategoryName = c.Name
+                        }).
+                        ToList()
+
+                  };
+
+                  if (course.Reviews is not null)
                   {
-                        CategoryName = c.Name
-                  }).
-                  ToList()
+                        mappedCourse.Reviews = course.Reviews.Select(r => new ReviewDto()
+                        {
+                              ReviewText = r.ReviewText,
+                              ReviewRating = r.ReviewRating
+                        }).ToList();
+                  }
 
-            };
+                  return mappedCourse!;
 
-            if (course.Reviews is not null)
-            {
-                  mappedCourse.Reviews = course.Reviews.Select(r => new ReviewDto()
-                  {
-                        ReviewText = r.ReviewText,
-                        ReviewRating = r.ReviewRating
-                  }).ToList();
-            }
-
-            return mappedCourse;
+            });
+            return requestedCourse;
 
       }
 
       public async Task<int> RemoveCourse(int id)
       {
-            return await _courseRepository.RemoveCourse(id);
+            string key = $"Course:{id}";
+            Course requestedCourse = await SearchForCourse(id);
+            int result = await _courseRepository.RemoveCourse(requestedCourse);
+            _cache.Remove(key);
+            return result;
       }
 
       public async Task UpdateCourse(int id, UpdateCourseDto updateCourseDto)
       {
-            Course? requiredCourse = await _courseRepository.GetCourseById(id);
-
-            if (requiredCourse is null)
-            {
-                  throw new EntityNotFoundException("Course hasn't been found");
-            }
+            string key = $"Course:{id}";
+            Course requiredCourse = await SearchForCourse(id);
 
             if (!string.IsNullOrEmpty(updateCourseDto.CourseName) && !updateCourseDto.CourseName.Equals(requiredCourse.CourseName))
             {
@@ -180,8 +185,8 @@ public class CourseService : ICourseService
             {
                   try
                   {
-
                         await _courseRepository.UpdateCourse();
+                        _cache.Remove(key);
                         isSaved = true;
                   }
                   catch (DbUpdateConcurrencyException ex)
@@ -209,4 +214,17 @@ public class CourseService : ICourseService
 
 
       }
+
+      private async Task<Course> SearchForCourse(int id)
+      {
+            Course? requestedCourse = await _courseRepository.GetCourseById(id);
+
+            if (requestedCourse is null)
+            {
+                  throw new EntityNotFoundException($"Course with {id} ID hasn't been found");
+            }
+
+            return requestedCourse!;
+      }
+
 }

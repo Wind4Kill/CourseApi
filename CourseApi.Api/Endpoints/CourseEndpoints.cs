@@ -13,7 +13,7 @@ public static class CourseEndpoints
 {
       public static void AddCourseEndpoints(this WebApplication app)
       {
-            var endpointBuilder = app.MapGroup("/courses").WithTags("Courses");
+            var endpointBuilder = app.MapGroup("api/courses").WithTags("Courses");
 
             endpointBuilder.MapPost("", async ([FromBody] CreateCourseDto dto, ICourseService service, LinkGenerator links) =>
            {
@@ -25,16 +25,25 @@ public static class CourseEndpoints
 
             endpointBuilder.MapGet("", async (ICourseService service, [AsParameters] Filtering options) =>
             {
-                  SortFilterOptions sortFilterOptions = new()
+                  SortFilterOptions sortFilterOptions = new();
+                  if (Enum.TryParse<SortingOptions>(options.Sorting!, true, out SortingOptions sortingOptions))
                   {
-                        Sorting = (SortingOptions)Enum.Parse(typeof(SortingOptions), options.Sorting!),
-                        Filter = (FilterOptions)Enum.Parse(typeof(FilterOptions), options.Filter!),
-                        FilterValue = options.FilterValue,
-                        PageNum = options.PageNum!.Value
-                  };
+                        sortFilterOptions.Sorting = sortingOptions;
+                  }
+                  if (Enum.TryParse<FilterOptions>(options.Filter, true, out FilterOptions filterOptions))
+                  {
+                        sortFilterOptions.Filter = filterOptions;
+                  }
+                  if (!string.IsNullOrEmpty(options.FilterValue))
+                  {
+                        sortFilterOptions.FilterValue = options.FilterValue;
+                  }
+                  if (options.PageNum is not null && options.PageNum.HasValue)
+                  {
+                        sortFilterOptions.PageNum = options.PageNum.Value;
+                  }
 
                   List<GetCourseDto> courses = await service.GetCourses(sortFilterOptions!);
-
                   return Results.Ok(courses);
 
             }).Produces(200);
@@ -42,27 +51,24 @@ public static class CourseEndpoints
             endpointBuilder.MapGet("{id:int}", async (ICourseService service, int id) =>
             {
                   GetCourseByIdDto? requestedCourse = await service.GetCourseById(id);
-                  return requestedCourse is null ? Results.NotFound() : Results.Ok(requestedCourse);
+                  return Results.Ok(requestedCourse);
             }).Produces(200).WithName("GetCourseById");
 
             endpointBuilder.MapPatch("{id:int}", async (int id, UpdateCourseDto updatedCourse, ICourseService service) =>
                        {
-
                              await service.UpdateCourse(id, updatedCourse);
 
                              return Results.NoContent();
 
-
-                       }).WithParameterValidation().Produces(204).ProducesProblem(400);
+                       }).WithParameterValidation().Produces(204);
 
             endpointBuilder.MapDelete("{id:int}", async (int id, ICourseService service) =>
             {
                   int affectedRows = await service.RemoveCourse(id);
 
-                  return affectedRows is > 0 ? Results.NoContent() :
-                   Results.InternalServerError("Removal wasn't successfull");
+                  return Results.NoContent();
 
-            }).Produces(204).ProducesProblem(500);
+            }).Produces(204);
 
       }
 

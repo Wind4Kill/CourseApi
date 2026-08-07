@@ -14,7 +14,7 @@ public interface ICourseRepository
 
       Task<Course?> GetCourseById(int id);
 
-      Task<int> RemoveCourse(int id);
+      Task<int> RemoveCourse(Course course);
 
       Task UpdateCourse();
 
