@@ -14,31 +14,33 @@ public static class AuthorEndpoints
       {
             var endpointBuilder = app.MapGroup("api/authors").WithTags("Authors");
 
-            endpointBuilder.MapPost("", async (IAuthorService service, CreateAuthorDto authorDto, LinkGenerator links) =>
+            endpointBuilder.MapPost("", async (IAuthorService service, CreateAuthorDto authorDto,
+             LinkGenerator links, CancellationToken cancellationToken) =>
             {
-                  Author author = await service.CreateAuthor(authorDto);
+                  Author author = await service.CreateAuthor(authorDto, cancellationToken);
 
                   string? link = links.GetPathByName("GetAuthorById", new { id = author.AuthorId });
 
                   return Results.Created(link, author);
             }).WithParameterValidation().Produces(201);
 
-            endpointBuilder.MapGet("{id:int}", async (int id, IAuthorService service) =>
+            endpointBuilder.MapGet("{id:int}", async (int id, IAuthorService service, CancellationToken cancellationToken) =>
             {
-                  GetAuthorDto requestedAuthor = await service.GetAuthorById(id);
+                  GetAuthorDto requestedAuthor = await service.GetAuthorById(id, cancellationToken);
                   return Results.Ok(requestedAuthor);
             }).WithName("GetAuthorById").Produces(200);
 
-            endpointBuilder.MapDelete("{id:int}", async (int id, IAuthorService service) =>
+            endpointBuilder.MapDelete("{id:int}", async (int id, IAuthorService service, CancellationToken cancellationToken) =>
             {
-                  int affectedRows = await service.DeleteAuthor(id);
+                  await service.DeleteAuthor(id, cancellationToken);
 
                   return Results.NoContent();
             }).Produces(204);
 
-            endpointBuilder.MapPut("{id:int}", async (int id, IAuthorService service, CreateCourseDto createdCourseDto, LinkGenerator links) =>
+            endpointBuilder.MapPut("{id:int}", async (int id, IAuthorService service,
+            CreateCourseDto createdCourseDto, LinkGenerator links, CancellationToken cancellationToken) =>
             {
-                  Course createdCourse = await service.AddCourseToAuthor(id, createdCourseDto);
+                  GetCourseByIdDto createdCourse = await service.AddCourseToAuthor(id, createdCourseDto, cancellationToken);
                   string? link = links.GetPathByName("GetCourseById", new { Id = createdCourse.CourseId });
 
                   return Results.Created(link, createdCourse);

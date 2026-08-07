@@ -16,30 +16,30 @@ public class AuthorRepository : IAuthorRepository
             _context = context;
       }
 
-      public async Task CreateAuthor(Author author)
+      public async Task CreateAuthor(Author author, CancellationToken cancellationToken)
       {
             _context.Authors.Add(author);
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(cancellationToken);
       }
 
-      public async Task<int> DeleteAuthor(int id)
+      public async Task DeleteAuthor(int id, CancellationToken cancellationToken)
       {
-            return await _context.Authors.Where(a => a.AuthorId == id).
+            await _context.Authors.Where(a => a.AuthorId == id).
             ExecuteUpdateAsync(a => a.
-            SetProperty(author => author.IsDeleted, author => true));
+            SetProperty(author => author.IsDeleted, author => true), cancellationToken);
       }
 
-      public async Task<Author?> GetAuthorById(int id)
+      public async Task<Author?> GetAuthorById(int id, CancellationToken cancellationToken)
       {
             Author? requestedAuthor = await _context.Authors.Include(a => a.Courses).
-            SingleOrDefaultAsync(a => a.AuthorId == id);
+            SingleOrDefaultAsync(a => a.AuthorId == id, cancellationToken);
             return requestedAuthor;
       }
 
-      public async Task<List<Author>?> GetAuthorsByNames(List<string> names)
+      public async Task<List<Author>?> GetAuthorsByNames(List<string> names, CancellationToken cancellationToken)
       {
             List<Author>? requestedAuthors = await _context.Authors.
-            Where(a=>names.Contains(a.Name)).ToListAsync();
+            Where(a=>names.Contains(a.Name)).ToListAsync(cancellationToken);
             return requestedAuthors;
       }
 
