@@ -34,7 +34,7 @@ namespace CourseApiDomain.Migrations
 
                     b.HasIndex("CoursesCourseId");
 
-                    b.ToTable("CategoryCourse");
+                    b.ToTable("CategoryCourse", (string)null);
                 });
 
             modelBuilder.Entity("CourseApiDomain.Entities.Author", b =>
@@ -58,7 +58,7 @@ namespace CourseApiDomain.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Authors");
+                    b.ToTable("Authors", (string)null);
                 });
 
             modelBuilder.Entity("CourseApiDomain.Entities.Category", b =>
@@ -79,7 +79,7 @@ namespace CourseApiDomain.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("CourseApiDomain.Entities.Course", b =>
@@ -112,7 +112,7 @@ namespace CourseApiDomain.Migrations
                     b.HasIndex("CourseName")
                         .IsUnique();
 
-                    b.ToTable("Courses");
+                    b.ToTable("Courses", (string)null);
                 });
 
             modelBuilder.Entity("CourseApiDomain.Entities.Review", b =>
@@ -137,7 +137,7 @@ namespace CourseApiDomain.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.ToTable("Review");
+                    b.ToTable("Review", (string)null);
                 });
 
             modelBuilder.Entity("CourseApiDomain.Views.CourseRating", b =>
@@ -148,7 +148,7 @@ namespace CourseApiDomain.Migrations
                     b.Property<int>("CourseId")
                         .HasColumnType("integer");
 
-                    b.ToTable("Ratings");
+                    b.ToTable("Ratings", (string)null);
 
                     b.ToSqlQuery("  SELECT \r\n    c.\"CourseId\",\r\n    get_course_rating(c.\"CourseId\") AS \"AvgRating\"\r\nFROM \"Courses\" c");
                 });
@@ -191,7 +191,7 @@ namespace CourseApiDomain.Migrations
 
                             b1.HasKey("CourseId");
 
-                            b1.ToTable("Courses");
+                            b1.ToTable("Courses", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("CourseId");

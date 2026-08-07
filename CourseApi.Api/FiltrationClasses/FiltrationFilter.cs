@@ -10,10 +10,11 @@ public class FiltrationFilter : IEndpointFilter
 {
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
-        string? filter = context.GetArgument<string>(0);
-        string? filtrationValue = context.GetArgument<string>(2);
+        Filtering filter = context.GetArgument<Filtering>(1);
+        string? filterType = filter.Filter;
+        string? filtrationValue = filter.FilterValue;
 
-        if ((filter is not null || filter != FilterOptions.Default.ToString()) && filtrationValue is not null)
+        if ((filter is not null || filterType != FilterOptions.Default.ToString()) && filtrationValue is not null)
         {
             return Results.ValidationProblem(new Dictionary<string, string[]>()
              {

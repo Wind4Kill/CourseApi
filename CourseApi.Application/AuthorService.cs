@@ -62,7 +62,7 @@ public class AuthorService : IAuthorService
                   {
                         CourseId = c.CourseId,
                         CourseName = c.CourseName,
-                        CourseRating = CourseFunctions.GetCourseRating(c.CourseId),
+                        CourseRating = c.AverageRating,
                         CoursePrice = c.CourseDetails.CoursePrice
                   }).ToList();
             }

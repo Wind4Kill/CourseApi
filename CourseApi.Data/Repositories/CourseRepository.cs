@@ -3,9 +3,7 @@ using System.Collections;
 using CourseApiDomain;
 using CourseApiDomain.Entities;
 using CourseApiDomain.Views;
-using CourseApiServices.Dtos.AuthorDtos;
-using CourseApiServices.Dtos.CourseDtos;
-using CourseApiServices.Dtos.ReviewDtos;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseApiServices.Interfaces.Repositories;

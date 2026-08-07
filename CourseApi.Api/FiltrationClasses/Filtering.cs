@@ -1,6 +1,6 @@
 using System;
 
-namespace CourseApi;
+namespace CourseApi.Api.FiltrationClasses;
 
 public record Filtering(string? Filter,
 string? Sorting,
