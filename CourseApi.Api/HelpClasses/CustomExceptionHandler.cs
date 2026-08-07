@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CourseApi.Domain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +10,8 @@ namespace CourseApi.Api
         {
             var (statusCode, message) = exception switch
             {
-                EntityNotFoundException => (StatusCodes.Status400BadRequest, "Entity Not Found"),
+                EntityNotFoundException => (StatusCodes.Status404NotFound, "Entity Not Found"),
+                EntityAlreadyExistsExceptions=>(StatusCodes.Status400BadRequest, "Entity Already Exists"),
                 _ => (StatusCodes.Status500InternalServerError, "Internal Server Error")
             };
 
