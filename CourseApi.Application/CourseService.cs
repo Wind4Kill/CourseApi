@@ -196,8 +196,8 @@ public class CourseService : ICourseService
                   try
                   {
                         await _courseRepository.UpdateCourse(cancellationToken);
-                        _cache.Remove(key);
                         isSaved = true;
+                        _cache.Remove(key);
                   }
                   catch (DbUpdateConcurrencyException ex)
                   {
@@ -216,7 +216,7 @@ public class CourseService : ICourseService
                               }
                               else
                               {
-                                    throw new NotSupportedException("Don't know how to handle concurrency conflicts for" + entry.Metadata.Name);
+                                    throw new NotSupportedException("Cocurrency conflict can't be resolved." + entry.Metadata.Name);
                               }
                         }
                   }

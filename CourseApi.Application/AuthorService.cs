@@ -27,9 +27,11 @@ public class AuthorService : IAuthorService
             _categoryRepository = categoryRepository;
       }
 
-      public async Task<Author> CreateAuthor(CreateAuthorDto authorDto, CancellationToken cancellationToken)
+      public async Task<GetAuthorDto> CreateAuthor(CreateAuthorDto authorDto, CancellationToken cancellationToken)
       {
-            Author? existedAuthor = (await _authorRepository.GetAuthorsByNames(names: [authorDto.AuthorName], cancellationToken))?.FirstOrDefault();
+            Author? existedAuthor = (await _authorRepository.
+            GetAuthorsByNames(names: [authorDto.AuthorName], cancellationToken))
+            ?.FirstOrDefault();
 
             if (existedAuthor is not null)
             {
@@ -37,8 +39,9 @@ public class AuthorService : IAuthorService
             }
 
             Author createdAuthor = new Author() { Name = authorDto.AuthorName };
-            await _authorRepository.CreateAuthor(createdAuthor, cancellationToken);
-            return createdAuthor;
+            createdAuthor = await _authorRepository.CreateAuthor(createdAuthor, cancellationToken);
+            GetAuthorDto mappedAuthor = new GetAuthorDto() { Name = createdAuthor.Name };
+            return mappedAuthor;
       }
 
       public async Task<GetAuthorDto> GetAuthorById(int id, CancellationToken cancellationToken)

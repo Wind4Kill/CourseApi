@@ -39,7 +39,7 @@ public static class CourseEndpoints
             {
                   GetCourseByIdDto? requestedCourse = await service.GetCourseById(id, cancellationToken);
                   return Results.Ok(requestedCourse);
-            }).Produces(200).WithName("GetCourseById");
+            }).Produces<GetCourseByIdDto>(200).ProducesProblem(statusCode:404).WithName("GetCourseById");
 
             endpointBuilder.MapPatch("{id:int}", async (int id, UpdateCourseDto updatedCourse,
             ICourseService service, IOutputCacheStore store, CancellationToken cancellationToken) =>
@@ -49,7 +49,7 @@ public static class CourseEndpoints
 
                              return Results.NoContent();
 
-                       }).WithParameterValidation().Produces(204);
+                       }).WithParameterValidation().Produces(204).ProducesProblem(statusCode:404);
 
             endpointBuilder.MapDelete("{id:int}", async (int id, ICourseService service,
              IOutputCacheStore store, CancellationToken cancellationToken) =>
@@ -59,7 +59,7 @@ public static class CourseEndpoints
 
                   return Results.NoContent();
 
-            }).Produces(204);
+            }).Produces(204).ProducesProblem(statusCode:404);
 
       }
 

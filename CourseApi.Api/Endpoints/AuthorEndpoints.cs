@@ -17,18 +17,18 @@ public static class AuthorEndpoints
             endpointBuilder.MapPost("", async (IAuthorService service, CreateAuthorDto authorDto,
              LinkGenerator links, CancellationToken cancellationToken) =>
             {
-                  Author author = await service.CreateAuthor(authorDto, cancellationToken);
+                  GetAuthorDto author = await service.CreateAuthor(authorDto, cancellationToken);
 
                   string? link = links.GetPathByName("GetAuthorById", new { id = author.AuthorId });
 
                   return Results.Created(link, author);
-            }).WithParameterValidation().Produces(201);
+            }).WithParameterValidation().Produces<GetAuthorDto>(201).ProducesProblem(statusCode:400);
 
             endpointBuilder.MapGet("{id:int}", async (int id, IAuthorService service, CancellationToken cancellationToken) =>
             {
                   GetAuthorDto requestedAuthor = await service.GetAuthorById(id, cancellationToken);
                   return Results.Ok(requestedAuthor);
-            }).WithName("GetAuthorById").Produces(200);
+            }).WithName("GetAuthorById").Produces<GetAuthorDto>(200).ProducesProblem(statusCode:404);
 
             endpointBuilder.MapDelete("{id:int}", async (int id, IAuthorService service, CancellationToken cancellationToken) =>
             {
@@ -44,6 +44,6 @@ public static class AuthorEndpoints
                   string? link = links.GetPathByName("GetCourseById", new { Id = createdCourse.CourseId });
 
                   return Results.Created(link, createdCourse);
-            });
+            }).Produces<GetCourseByIdDto>(204).ProducesProblem(statusCode:400);
       }
 }

@@ -16,10 +16,11 @@ public class AuthorRepository : IAuthorRepository
             _context = context;
       }
 
-      public async Task CreateAuthor(Author author, CancellationToken cancellationToken)
+      public async Task<Author> CreateAuthor(Author author, CancellationToken cancellationToken)
       {
             _context.Authors.Add(author);
             await _context.SaveChangesAsync(cancellationToken);
+            return author;
       }
 
       public async Task DeleteAuthor(int id, CancellationToken cancellationToken)
