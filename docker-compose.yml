@@ -8,15 +8,18 @@ services:
       - ConnectionStrings__PostgreConnection=${DB_CONNECTION}
       - ConnectionStrings__RedisConnection=${REDIS_CONNECTION}
     depends_on:
-       db:
-          condition: service_healthy
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
   db:
     image: postgres:16
     container_name: db
     environment:
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
     volumes: 
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -31,12 +34,12 @@ services:
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis_cli", "ping"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 3s
       retries: 5
 
 volumes:
-    postgres_data:
-    redis_data:
+  postgres_data:
+  redis_data:
 

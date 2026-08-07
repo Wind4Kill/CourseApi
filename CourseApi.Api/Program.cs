@@ -3,11 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using CourseApi;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Diagnostics;
 using CourseApiDomain;
 using Microsoft.EntityFrameworkCore;
-using CourseApiServices.Interfaces.HelpClasses;
-using CourseApiServices.HelpClasses.Exceptions;
+
 using CourseApi.Api;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,7 +20,7 @@ if (builder.Environment.IsProduction())
 {
       builder.Services.AddStackExchangeRedisOutputCache(options =>
       {
-            options.Configuration = builder.Configuration.GetConnectionString("RedisConnectionString");
+            options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
             options.InstanceName = "CourseApi_cache";
       });
 }
@@ -31,7 +29,8 @@ builder.Services.AddOutputCache();
 builder.Services.AddProblemDetails();
 builder.Services.AddServices();
 
-if (builder.Environment.IsDevelopment())
+//remove IsProduction in production
+if (builder.Environment.IsDevelopment() || builder.Environment.IsProduction())
 {
       builder.Services.AddEndpointsApiExplorer();
       builder.Services.AddSwaggerGen();
@@ -50,42 +49,18 @@ builder.Services.AddDbContext<ApplicationContext>(options =>
             .EnableSensitiveDataLogging().
             EnableDetailedErrors();
       }
-
-
 });
-
 
 var app = builder.Build();
 app.UseStatusCodePages();
 
 if (app.Environment.IsProduction())
 {
-      app.UseExceptionHandler(app => app.Run(async context =>
-      {
-            var exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
-
-            var (status, title) = exception switch
-            {
-                  EntityNotFoundException => (404, "Requested entity wasn't found"),
-                  EntityAlreadyExistsExceptions => (409, "Requested entity wasn't found"),
-                  _ => (500, "Internal Server Error")
-            };
-
-            context.Response.StatusCode = status;
-
-            await context.Response.WriteAsJsonAsync(new ProblemDetails
-            {
-                  Title = title,
-                  Status = status,
-                  Detail = exception?.Message
-            });
-
-      }));
       await app.MigratePendingMigrations();
 }
 
-
-if (app.Environment.IsDevelopment())
+//remove IsProduction in production
+if (app.Environment.IsDevelopment()||app.Environment.IsProduction())
 {
       app.UseSwagger();
       app.UseSwaggerUI();

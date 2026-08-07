@@ -4,8 +4,8 @@ using CourseApiServices.Dtos.CourseDtos;
 using CourseApiServices.HelpClasses;
 using CourseApiServices.Interfaces;
 using CourseApiServices.Interfaces.HelpClasses;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace CourseApi.Enpoints;
 
@@ -46,7 +46,7 @@ public static class CourseEndpoints
                   List<GetCourseDto> courses = await service.GetCourses(sortFilterOptions!);
                   return Results.Ok(courses);
 
-            }).Produces(200);
+            }).Produces(200).CacheOutput(builder => builder.Expire(TimeSpan.FromSeconds(120)).Tag("all-books"));
 
             endpointBuilder.MapGet("{id:int}", async (ICourseService service, int id) =>
             {
@@ -54,17 +54,19 @@ public static class CourseEndpoints
                   return Results.Ok(requestedCourse);
             }).Produces(200).WithName("GetCourseById");
 
-            endpointBuilder.MapPatch("{id:int}", async (int id, UpdateCourseDto updatedCourse, ICourseService service) =>
+            endpointBuilder.MapPatch("{id:int}", async (int id, UpdateCourseDto updatedCourse, ICourseService service, IOutputCacheStore store) =>
                        {
                              await service.UpdateCourse(id, updatedCourse);
+                             await store.EvictByTagAsync("all-books",default);
 
                              return Results.NoContent();
 
                        }).WithParameterValidation().Produces(204);
 
-            endpointBuilder.MapDelete("{id:int}", async (int id, ICourseService service) =>
+            endpointBuilder.MapDelete("{id:int}", async (int id, ICourseService service, IOutputCacheStore store) =>
             {
                   int affectedRows = await service.RemoveCourse(id);
+                  await store.EvictByTagAsync("all-books", default);
 
                   return Results.NoContent();
 
