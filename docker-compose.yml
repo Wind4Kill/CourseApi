@@ -1,15 +1,18 @@
 services:
   api:
     build: .
+    container_name: api
     ports:
       - "8080:8080"
     environment:
-      - ConnectionStrings__PostgreConnection=${CONNECTION}
+      - ConnectionStrings__PostgreConnection=${DB_CONNECTION}
+      - ConnectionStrings__RedisConnection=${REDIS_CONNECTION}
     depends_on:
        db:
           condition: service_healthy
   db:
     image: postgres:16
+    container_name: db
     environment:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
@@ -17,10 +20,23 @@ services:
     volumes: 
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$DB_USER -d $$DB_NAME"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
       interval: 5s
       timeout: 5s
       retries: 10
+
+  redis:
+    image: redis:8-alpine
+    container_name: redis
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis_cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
 volumes:
     postgres_data:
+    redis_data:
 
