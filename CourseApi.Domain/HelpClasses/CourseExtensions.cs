@@ -1,8 +1,7 @@
 using System;
 using CourseApiDomain.Entities;
-using CourseApiServices.HelpClasses;
 
-namespace CourseApiServices.Interfaces.HelpClasses;
+namespace CourseApi.Domain.HelpClasses;
 
 public static class CourseExtensions
 {

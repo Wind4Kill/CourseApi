@@ -1,11 +1,11 @@
 using System;
 using CourseApiDomain.Entities;
+namespace CourseApi.Domain.HelpClasses;
 
-namespace CourseApiServices.HelpClasses;
-
-public static class Help
+public static class EntityDifferentiator
 {
-      public static async Task<List<T>> DifferentiateEntity<T>(List<string> dtoNames, List<T>? existedValues) where T : class, IDifferentiateEntity, new()
+      public static async Task<List<T>> DifferentiateEntity<T>(List<string> dtoNames, List<T>? existedValues) where T : 
+      class, IDifferentiateEntity, new()
       {
             
             List<T> newValues = new();

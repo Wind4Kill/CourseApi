@@ -1,9 +1,9 @@
 using System;
+using CourseApi.Api.FiltrationClasses;
+using CourseApi.Domain.HelpClasses;
 using CourseApiDomain.Entities;
 using CourseApiServices.Dtos.CourseDtos;
-using CourseApiServices.HelpClasses;
 using CourseApiServices.Interfaces;
-using CourseApiServices.Interfaces.HelpClasses;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 
@@ -25,28 +25,14 @@ public static class CourseEndpoints
 
             endpointBuilder.MapGet("", async (ICourseService service, [AsParameters] Filtering options) =>
             {
-                  SortFilterOptions sortFilterOptions = new();
-                  if (Enum.TryParse<SortingOptions>(options.Sorting!, true, out SortingOptions sortingOptions))
-                  {
-                        sortFilterOptions.Sorting = sortingOptions;
-                  }
-                  if (Enum.TryParse<FilterOptions>(options.Filter, true, out FilterOptions filterOptions))
-                  {
-                        sortFilterOptions.Filter = filterOptions;
-                  }
-                  if (!string.IsNullOrEmpty(options.FilterValue))
-                  {
-                        sortFilterOptions.FilterValue = options.FilterValue;
-                  }
-                  if (options.PageNum is not null && options.PageNum.HasValue)
-                  {
-                        sortFilterOptions.PageNum = options.PageNum.Value;
-                  }
+                  SortFilterOptions sortFilterOptions = new(sortingOptions: options.Sorting, filterOptions: options.Filter,
+                   filterValue: options.FilterValue, page: options.PageNum);
 
                   List<GetCourseDto> courses = await service.GetCourses(sortFilterOptions!);
                   return Results.Ok(courses);
 
-            }).Produces(200).CacheOutput(builder => builder.Expire(TimeSpan.FromSeconds(120)).Tag("all-books"));
+            }).AddEndpointFilter(new FiltrationFilter()).
+            Produces(200).CacheOutput(builder => builder.Expire(TimeSpan.FromSeconds(120)).Tag("all-books"));
 
             endpointBuilder.MapGet("{id:int}", async (ICourseService service, int id) =>
             {

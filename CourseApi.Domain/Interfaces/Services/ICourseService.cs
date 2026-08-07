@@ -1,8 +1,7 @@
 using System;
+using CourseApi.Domain.HelpClasses;
 using CourseApiDomain.Entities;
 using CourseApiServices.Dtos.CourseDtos;
-using CourseApiServices.Interfaces.HelpClasses;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace CourseApiServices.Interfaces;
 

@@ -1,8 +1,6 @@
 using System;
 using CourseApiDomain.Entities;
 using CourseApiServices.Dtos.CourseDtos;
-using CourseApiServices.HelpClasses;
-using CourseApiServices.Interfaces.HelpClasses;
 
 namespace CourseApiServices.Interfaces;
 

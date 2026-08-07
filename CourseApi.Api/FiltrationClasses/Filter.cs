@@ -2,8 +2,8 @@ using System;
 
 namespace CourseApi;
 
-public record Filtering(string? Filter = "Default",
-string? Sorting = "Default",
-string? FilterValue = "",
-int? PageNum = 1);
+public record Filtering(string? Filter,
+string? Sorting,
+string? FilterValue,
+int? PageNum);
 

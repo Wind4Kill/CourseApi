@@ -10,7 +10,7 @@
   <ItemGroup>
     <Folder Include="Endpoints/" />
     <Folder Include="FiltrationClasses" />
-    <Folder Include="GelpClasses" />
+    <Folder Include="HelpClasses" />
   </ItemGroup>
 
   <ItemGroup>

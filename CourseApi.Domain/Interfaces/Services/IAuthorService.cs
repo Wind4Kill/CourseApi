@@ -2,7 +2,7 @@ using System;
 using CourseApiDomain.Entities;
 using CourseApiServices.Dtos.AuthorDtos;
 using CourseApiServices.Dtos.CourseDtos;
-using Microsoft.EntityFrameworkCore.Migrations.Operations;
+
 
 namespace CourseApiServices.Interfaces.Services;
 

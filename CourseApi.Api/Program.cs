@@ -5,7 +5,6 @@ using CourseApi;
 using System.Text.Json.Serialization;
 using CourseApiDomain;
 using Microsoft.EntityFrameworkCore;
-
 using CourseApi.Api;
 
 var builder = WebApplication.CreateBuilder(args);

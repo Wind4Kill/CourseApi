@@ -1,4 +1,4 @@
-namespace CourseApiServices.HelpClasses;
+namespace CourseApi.Domain.HelpClasses;
 
 public enum FilterOptions:byte
 {

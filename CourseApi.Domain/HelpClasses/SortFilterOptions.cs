@@ -1,7 +1,5 @@
 using System;
-using CourseApiServices.HelpClasses;
-
-namespace CourseApiServices.Interfaces.HelpClasses;
+namespace CourseApi.Domain.HelpClasses;
 
 public class SortFilterOptions
 {
@@ -12,14 +10,23 @@ public class SortFilterOptions
 
       public int PageNum { get; set; }
 
-      public SortFilterOptions(SortingOptions sortingOptions = SortingOptions.Default,
-       FilterOptions filterOptions = FilterOptions.Default,
-       string? filterValue = null, int pageNum = 1)
+      public SortFilterOptions(string? sortingOptions,
+       string? filterOptions, string? filterValue, int? page)
       {
-            Sorting = sortingOptions;
-            Filter = filterOptions;
-            FilterValue = filterValue;
-            PageNum = pageNum;
+            if (Enum.TryParse<SortingOptions>(sortingOptions, true, out SortingOptions sorting))
+            {
+                  Sorting = sorting;
+            }
+            if (Enum.TryParse<FilterOptions>(filterOptions, true, out FilterOptions filtering))
+            {
+                  Filter = filtering;
+            }
+            if (!string.IsNullOrEmpty(filterValue))
+            {
+                  FilterValue = filterValue;
+            }
+
+            PageNum = page.HasValue ? page.Value : 1;
       }
 
 }

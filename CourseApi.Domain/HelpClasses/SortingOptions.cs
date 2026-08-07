@@ -1,4 +1,4 @@
-namespace CourseApiServices.Interfaces.HelpClasses;
+namespace CourseApi.Domain.HelpClasses;
 
 public enum SortingOptions : byte
 {

@@ -1,16 +1,16 @@
-﻿using System.Reflection;
+﻿using CourseApi.Domain.HelpClasses;
 using CourseApiDomain;
 using CourseApiDomain.Entities;
 using CourseApiServices.Dtos.AuthorDtos;
 using CourseApiServices.Dtos.CategoryDtos;
 using CourseApiServices.Dtos.CourseDtos;
 using CourseApiServices.Dtos.ReviewDtos;
-using CourseApiServices.HelpClasses;
 using CourseApiServices.Interfaces;
-using CourseApiServices.Interfaces.HelpClasses;
 using CourseApiServices.Interfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using CourseApi.Domain.Exceptions;
+
 
 namespace CourseApiServices;
 
@@ -55,8 +55,7 @@ public class CourseService : ICourseService
             }
 
             List<Category>? existedCategories = await _categoryRepository.GetCategoriesByNames(dto.Categories);
-
-            addedCourse.Categories = await Help.DifferentiateEntity<Category>(dtoNames: dto.Categories, existedValues: existedCategories);
+            addedCourse.Categories = await EntityDifferentiator.DifferentiateEntity<Category>(dtoNames: dto.Categories, existedValues: existedCategories);
 
             await _courseRepository.AddCourse(addedCourse);
 
@@ -84,7 +83,7 @@ public class CourseService : ICourseService
 
       public async Task<GetCourseByIdDto?> GetCourseById(int id)
       {
-            string key = $"Course:{id}";
+            string key = GetKeyString(id);
 
             GetCourseByIdDto? requestedCourse = await _cache.GetOrCreateAsync(key, async entry =>
             {
@@ -132,7 +131,7 @@ public class CourseService : ICourseService
 
       public async Task<int> RemoveCourse(int id)
       {
-            string key = $"Course:{id}";
+            string key = GetKeyString(id);
             Course requestedCourse = await SearchForCourse(id);
             int result = await _courseRepository.RemoveCourse(requestedCourse);
             _cache.Remove(key);
@@ -141,7 +140,7 @@ public class CourseService : ICourseService
 
       public async Task UpdateCourse(int id, UpdateCourseDto updateCourseDto)
       {
-            string key = $"Course:{id}";
+            string key = GetKeyString(id);
             Course requiredCourse = await SearchForCourse(id);
 
             if (!string.IsNullOrEmpty(updateCourseDto.CourseName) && !updateCourseDto.CourseName.Equals(requiredCourse.CourseName))
@@ -176,7 +175,7 @@ public class CourseService : ICourseService
             if (updateCourseDto.Categories is not null && updateCourseDto.Categories.Any(c => c is not null))
             {
                   var existedCategories = await _categoryRepository.GetCategoriesByNames(updateCourseDto.Categories);
-                  requiredCourse.Categories = await Help.DifferentiateEntity<Category>(updateCourseDto.Categories, existedCategories);
+                  requiredCourse.Categories = await EntityDifferentiator.DifferentiateEntity<Category>(updateCourseDto.Categories, existedCategories);
             }
 
             bool isSaved = false;
@@ -225,6 +224,11 @@ public class CourseService : ICourseService
             }
 
             return requestedCourse!;
+      }
+
+      private string GetKeyString(int id)
+      {
+            return $"Course:{id}";
       }
 
 }

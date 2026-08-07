@@ -1,6 +1,6 @@
 using System;
 
-namespace CourseApiServices.Interfaces.HelpClasses;
+namespace CourseApi.Domain.Exceptions;
 
 public class EntityNotFoundException:Exception
 {

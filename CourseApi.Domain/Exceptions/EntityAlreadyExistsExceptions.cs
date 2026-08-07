@@ -1,6 +1,6 @@
 using System;
 
-namespace CourseApiServices.HelpClasses.Exceptions;
+namespace CourseApi.Domain.Exceptions;
 
 public class EntityAlreadyExistsExceptions:Exception
 {
