@@ -5,14 +5,9 @@ using CourseApiServices;
 using CourseApiServices.Interfaces;
 using CourseApiServices.Interfaces.Repositories;
 using CourseApiServices.Interfaces.Services;
-using CourseApiServices;
-using CourseApiServices.Interfaces;
-using CourseApiServices.Interfaces.Repositories;
-using CourseApiServices.Interfaces.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseApi;
-
 public static class ProgramExtensions
 {
 

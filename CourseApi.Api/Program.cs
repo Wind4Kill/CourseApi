@@ -8,14 +8,15 @@ using CourseApiDomain;
 using Microsoft.EntityFrameworkCore;
 using CourseApiServices.Interfaces.HelpClasses;
 using CourseApiServices.HelpClasses.Exceptions;
+using CourseApi.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
       options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
-
 builder.Services.AddMemoryCache();
 if (builder.Environment.IsProduction())
 {

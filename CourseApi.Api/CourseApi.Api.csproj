@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <Folder Include="Endpoints/" />
+    <Folder Include="FiltrationClasses" />
+    <Folder Include="GelpClasses" />
   </ItemGroup>
 
   <ItemGroup>
