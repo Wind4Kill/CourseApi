@@ -55,6 +55,7 @@ app.UseStatusCodePages();
 
 if (app.Environment.IsProduction())
 {
+      app.UseExceptionHandler();
       await app.MigratePendingMigrations();
 }
 
