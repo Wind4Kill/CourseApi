@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../CourseApi.Data/CourseApi.Data.csproj" />
-    <ProjectReference Include="../CourseApi.Domain/CourseApiDomain.csproj" />
+    <ProjectReference Include="../CourseApi.Domain/CourseApi.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

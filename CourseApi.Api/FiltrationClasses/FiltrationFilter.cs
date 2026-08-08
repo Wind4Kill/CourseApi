@@ -14,7 +14,7 @@ public class FiltrationFilter : IEndpointFilter
         string? filterType = filter.Filter;
         string? filtrationValue = filter.FilterValue;
 
-        if ((filter is not null || filterType != FilterOptions.Default.ToString()) && filtrationValue is not null)
+        if ((filter is not null || filterType != FilterOptions.Default.ToString()) && filtrationValue is null)
         {
             return Results.ValidationProblem(new Dictionary<string, string[]>()
              {

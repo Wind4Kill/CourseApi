@@ -21,7 +21,7 @@ public class SortFilterOptions
             {
                   Filter = filtering;
             }
-            if (!string.IsNullOrEmpty(filterValue))
+            if (!string.IsNullOrEmpty(filterValue)&&filterValue!=" ")
             {
                   FilterValue = filterValue;
             }
