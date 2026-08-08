@@ -13,18 +13,11 @@ public class SortFilterOptions
       public SortFilterOptions(string? sortingOptions,
        string? filterOptions, string? filterValue, int? page)
       {
-            if (Enum.TryParse<SortingOptions>(sortingOptions, true, out SortingOptions sorting))
-            {
-                  Sorting = sorting;
-            }
-            if (Enum.TryParse<FilterOptions>(filterOptions, true, out FilterOptions filtering))
-            {
-                  Filter = filtering;
-            }
-            if (!string.IsNullOrEmpty(filterValue)&&filterValue!=" ")
-            {
-                  FilterValue = filterValue;
-            }
+            Sorting = Enum.TryParse<SortingOptions>(sortingOptions, true, out SortingOptions sorting) ? sorting : SortingOptions.Default;
+
+            Filter = Enum.TryParse<FilterOptions>(filterOptions, true, out FilterOptions filtering) ? filtering : FilterOptions.Default;
+
+            FilterValue = filterValue;
 
             PageNum = page.HasValue ? page.Value : 1;
       }
