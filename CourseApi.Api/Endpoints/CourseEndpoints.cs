@@ -1,4 +1,5 @@
 using System;
+using CourseApi.Api.EndpointFilters;
 using CourseApi.Api.FiltrationClasses;
 using CourseApi.Domain.HelpClasses;
 using CourseApiDomain.Entities;
@@ -32,24 +33,24 @@ public static class CourseEndpoints
                   List<GetCourseDto> courses = await service.GetCourses(sortFilterOptions!, cancellationToken);
                   return Results.Ok(courses);
 
-            }).AddEndpointFilter(new FiltrationFilter()).
+            }).AddEndpointFilter(new FiltrationEndpointFilter()).
             Produces(200).CacheOutput(builder => builder.Expire(TimeSpan.FromSeconds(120)).Tag("all-books"));
 
             endpointBuilder.MapGet("{id:int}", async (ICourseService service, int id, CancellationToken cancellationToken) =>
             {
                   GetCourseByIdDto? requestedCourse = await service.GetCourseById(id, cancellationToken);
                   return Results.Ok(requestedCourse);
-            }).Produces<GetCourseByIdDto>(200).ProducesProblem(statusCode:404).WithName("GetCourseById");
+            }).Produces<GetCourseByIdDto>(200).ProducesProblem(statusCode: 404).WithName("GetCourseById");
 
             endpointBuilder.MapPatch("{id:int}", async (int id, UpdateCourseDto updatedCourse,
             ICourseService service, IOutputCacheStore store, CancellationToken cancellationToken) =>
                        {
                              await service.UpdateCourse(id, updatedCourse, cancellationToken);
-                             await store.EvictByTagAsync("all-books",default);
+                             await store.EvictByTagAsync("all-books", default);
 
                              return Results.NoContent();
 
-                       }).WithParameterValidation().Produces(204).ProducesProblem(statusCode:404);
+                       }).WithParameterValidation().Produces(204).ProducesProblem(statusCode: 404);
 
             endpointBuilder.MapDelete("{id:int}", async (int id, ICourseService service,
              IOutputCacheStore store, CancellationToken cancellationToken) =>
@@ -59,7 +60,7 @@ public static class CourseEndpoints
 
                   return Results.NoContent();
 
-            }).Produces(204).ProducesProblem(statusCode:404);
+            }).Produces(204).ProducesProblem(statusCode: 404);
 
       }
 

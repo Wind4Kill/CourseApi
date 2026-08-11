@@ -1,15 +1,16 @@
 using CourseApi.Enpoints;
-using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using CourseApi;
 using System.Text.Json.Serialization;
 using CourseApiDomain;
 using Microsoft.EntityFrameworkCore;
 using CourseApi.Api;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes:true);
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
       options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
