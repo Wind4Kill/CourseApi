@@ -19,7 +19,7 @@ namespace CourseApi.Api.EndpointFilters
             var validationResult = validator.Validate(createdCourse);
             if (!validationResult.IsValid)
             {
-                return TypedResults.ValidationProblem(validationResult.ToDictionary();
+                return TypedResults.ValidationProblem(validationResult.ToDictionary());
             }
 
             return await next(context);
