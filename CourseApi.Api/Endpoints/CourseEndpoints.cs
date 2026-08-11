@@ -23,7 +23,7 @@ public static class CourseEndpoints
                  string? link = links.GetPathByName("GetCourseById", new { id = course.CourseId });
                  return Results.Created(link, course);
 
-           }).WithParameterValidation().Produces(201);
+           }).AddEndpointFilter<CreateCourseFilter>().Produces(201);
 
             endpointBuilder.MapGet("", async (ICourseService service, [AsParameters] Filtering options, CancellationToken cancellationToken) =>
             {
