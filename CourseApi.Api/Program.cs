@@ -15,7 +15,8 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 {
       options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
-builder.Services.AddMemoryCache();
+
+builder.Services.AddDistributedMemoryCache();
 if (builder.Environment.IsProduction())
 {
       builder.Services.AddStackExchangeRedisOutputCache(options =>
