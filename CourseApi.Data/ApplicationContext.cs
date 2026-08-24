@@ -38,7 +38,8 @@ public class ApplicationContext : DbContext
       }
       public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
       {
-            var courses = ChangeTracker.Entries<Course>().Where(c => c.State == EntityState.Modified || c.State == EntityState.Added).ToList();
+            var courses = ChangeTracker.Entries<Course>().
+            Where(c => c.State == EntityState.Modified || c.State == EntityState.Added).ToList();
 
             foreach (var course in courses)
             {
@@ -46,7 +47,6 @@ public class ApplicationContext : DbContext
             }
 
            return await base.SaveChangesAsync(cancellationToken);
-
       }
 
 }

@@ -38,8 +38,10 @@ public class CourseRepository : ICourseRepository
             Include(c => c.Author).
             Include(c => c.Categories).
             FirstOrDefaultAsync(c => c.CourseId == id, cancellationToken);
+
+            CourseRating requestedRating = await _context.Ratings.Where(c => c.CourseId == id)
+            .FirstAsync(cancellationToken);
             
-            CourseRating requestedRating = await _context.Ratings.Where(c => c.CourseId == id).FirstAsync(cancellationToken);
             course?.AverageRating = requestedRating.AvgRating;
             return course;
       }

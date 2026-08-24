@@ -26,8 +26,6 @@ public static class ProgramExtensions
                               await context.Database.MigrateAsync();
                         }
                   });
-
-
             }
       }
       public static async Task SeedData(this WebApplication app)
