@@ -1,6 +1,6 @@
 using System;
 
-namespace CourseApiDomain.Entities;
+namespace CourseApi.Domain.Entities;
 
 public class CourseDetails
 {

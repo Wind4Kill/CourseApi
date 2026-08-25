@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CourseApi.Api.FiltrationClasses;
-using CourseApi.Domain.HelpClasses;
+using CourseApi.Application.Filtration.HelpClasses;
 using FluentValidation;
 
 namespace CourseApi.Api.Validators

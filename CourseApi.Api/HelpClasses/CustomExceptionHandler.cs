@@ -2,7 +2,7 @@ using CourseApi.Domain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CourseApi.Api
+namespace CourseApi.Api.HelpClasses
 {
     public class CustomExceptionHandler : IExceptionHandler
     {

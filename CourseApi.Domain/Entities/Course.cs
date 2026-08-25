@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CourseApiDomain.Entities;
+namespace CourseApi.Domain.Entities;
 
 public class Course
 {
@@ -16,7 +16,7 @@ public class Course
       public ICollection<Category> Categories { get; set; } = null!;
       public ICollection<Review>? Reviews { get; set; }
 
-      public double? AverageRating { get; set; }
+      public double? AverageRating => Reviews!.Any() == true ? Reviews!.Average(r => r.ReviewRating) : 0.0;
 
       public required CourseDetails CourseDetails { get; set; }
       public bool IsDeleted { get; set; }
