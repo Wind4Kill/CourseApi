@@ -29,7 +29,7 @@ public class AuthorRepository : IAuthorRepository
 
       public async Task<Author?> GetAuthorById(int id, CancellationToken cancellationToken)
       {
-            Author? requestedAuthor = await _context.Authors.Include(a => a.Courses).
+            Author? requestedAuthor = await _context.Authors.Include(a => a.Courses)!.ThenInclude(c=>c.Reviews).
             SingleOrDefaultAsync(a => a.AuthorId == id, cancellationToken);
             return requestedAuthor;
       }
