@@ -72,7 +72,12 @@ public class AuthorService : IAuthorService
 
       public async Task DeleteAuthor(int id, CancellationToken cancellationToken)
       {
-             await _authorRepository.DeleteAuthor(id, cancellationToken);
+            Author? author = await _authorRepository.GetAuthorById(id, cancellationToken);
+            if (author is null)
+            {
+                  throw new EntityNotFoundException($"Author with {id} ID hasn't been found");
+            }
+            await _authorRepository.DeleteAuthor(author, cancellationToken);
       }
 
       public async Task<GetCourseByIdDto> AddCourseToAuthor(int authorId, CreateCourseDto courseDto, CancellationToken cancellationToken)
@@ -80,9 +85,9 @@ public class AuthorService : IAuthorService
 
             Course? existingCourse = await _courseRepository.FindCourseByName(courseDto.CourseName, cancellationToken);
 
-            if(existingCourse is not null)
+            if (existingCourse is not null)
             {
-                  throw new EntityAlreadyExistsExceptions("Entity course with specified name already exists.");
+                  throw new EntityAlreadyExistsExceptions($"Entity course with specified name: {existingCourse.CourseName} already exists.");
             }
 
             Course createdCourse = new Course()
@@ -121,7 +126,7 @@ public class AuthorService : IAuthorService
                         ReviewText = r.ReviewText
                   }).ToList()
             };
-            
+
             return mappedCourse;
 
 

@@ -11,6 +11,6 @@ public interface IAuthorRepository
 
       Task<Author?> GetAuthorById(int id, CancellationToken cancellationToken);
 
-      Task DeleteAuthor(int id, CancellationToken cancellationToken);
+      Task DeleteAuthor(Author author, CancellationToken cancellationToken);
 
 }

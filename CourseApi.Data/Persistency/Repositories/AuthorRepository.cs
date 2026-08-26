@@ -21,11 +21,10 @@ public class AuthorRepository : IAuthorRepository
             return author;
       }
 
-      public async Task DeleteAuthor(int id, CancellationToken cancellationToken)
+      public async Task DeleteAuthor(Author author, CancellationToken cancellationToken)
       {
-            await _context.Authors.Where(a => a.AuthorId == id).
-            ExecuteUpdateAsync(a => a.
-            SetProperty(author => author.IsDeleted, author => true), cancellationToken);
+            author.IsDeleted = true;
+            await _context.SaveChangesAsync(cancellationToken);
       }
 
       public async Task<Author?> GetAuthorById(int id, CancellationToken cancellationToken)
