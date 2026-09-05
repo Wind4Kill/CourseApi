@@ -1,8 +1,7 @@
-using System;
-using CourseApiDomain.Entities;
-using CourseApiServices.Dtos.AuthorDtos;
-using CourseApiServices.Dtos.CourseDtos;
-using CourseApiServices.Interfaces.Services;
+
+using CourseApi.Application.DTOs.AuthorDtos;
+using CourseApi.Application.DTOs.CourseDtos;
+using CourseApi.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 

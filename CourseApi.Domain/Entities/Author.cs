@@ -1,6 +1,7 @@
-using System;
 
-namespace CourseApiDomain.Entities;
+using CourseApi.Domain.Interfaces;
+
+namespace CourseApi.Domain.Entities;
 
 public class Author:IDifferentiateEntity
 {

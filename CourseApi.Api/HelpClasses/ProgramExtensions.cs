@@ -1,16 +1,10 @@
-using System;
-using CourseApiDomain;
-using CourseApiDomain.Entities;
-using CourseApiServices;
-using CourseApiServices.Interfaces;
-using CourseApiServices.Interfaces.Repositories;
-using CourseApiServices.Interfaces.Services;
+using CourseApi.Data.Persistency.Repositories;
+using CourseApi.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseApi;
 public static class ProgramExtensions
 {
-
 
       public static async Task MigratePendingMigrations(this WebApplication app)
       {
@@ -21,13 +15,12 @@ public static class ProgramExtensions
 
                   await strategy.ExecuteAsync(async () =>
                   {
-                        if (context.Database.GetPendingMigrations().Any())
+                        var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
+                        if (pendingMigrations.Any())
                         {
                               await context.Database.MigrateAsync();
                         }
                   });
-
-
             }
       }
       public static async Task SeedData(this WebApplication app)
@@ -56,16 +49,5 @@ public static class ProgramExtensions
                         await context.SaveChangesAsync();
                   }
             }
-      }
-
-      public static IServiceCollection AddServices(this IServiceCollection services)
-      {
-            services.AddScoped<ICourseService, CourseService>();
-            services.AddScoped<IAuthorService, AuthorService>();
-
-            services.AddScoped<ICourseRepository, CourseRepository>();
-            services.AddScoped<IAuthorRepository, AuthorRepository>();
-            services.AddScoped<ICategoryRepository, CategoryRepository>();
-            return services;
       }
 }

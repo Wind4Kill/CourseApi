@@ -1,4 +1,3 @@
-using System;
 
 namespace CourseApi.Api.FiltrationClasses;
 

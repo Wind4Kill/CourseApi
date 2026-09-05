@@ -1,10 +1,9 @@
 using System;
 using CourseApi.Api.EndpointFilters;
 using CourseApi.Api.FiltrationClasses;
-using CourseApi.Domain.HelpClasses;
-using CourseApiDomain.Entities;
-using CourseApiServices.Dtos.CourseDtos;
-using CourseApiServices.Interfaces;
+using CourseApi.Application.DTOs.CourseDtos;
+using CourseApi.Application.Filtration.HelpClasses;
+using CourseApi.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 

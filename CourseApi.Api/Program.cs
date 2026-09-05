@@ -2,10 +2,12 @@ using CourseApi.Enpoints;
 using System.Diagnostics;
 using CourseApi;
 using System.Text.Json.Serialization;
-using CourseApiDomain;
 using Microsoft.EntityFrameworkCore;
 using CourseApi.Api;
 using FluentValidation;
+using CourseApi.Application;
+using CourseApi.Api.HelpClasses;
+using CourseApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +17,8 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 {
       options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
-builder.Services.AddMemoryCache();
+
+builder.Services.AddDistributedMemoryCache();
 if (builder.Environment.IsProduction())
 {
       builder.Services.AddStackExchangeRedisOutputCache(options =>
@@ -27,7 +30,8 @@ if (builder.Environment.IsProduction())
 
 builder.Services.AddOutputCache();
 builder.Services.AddProblemDetails();
-builder.Services.AddServices();
+builder.Services.AddApplication();
+builder.Services.AddData(builder.Configuration.GetConnectionString("PostgreConnection")!);
 
 //remove IsProduction in production
 if (builder.Environment.IsDevelopment() || builder.Environment.IsProduction())
@@ -37,21 +41,9 @@ if (builder.Environment.IsDevelopment() || builder.Environment.IsProduction())
       builder.Services.AddHealthChecks();
 }
 
-string connection = builder.Configuration.GetConnectionString("PostgreConnection")!;
-builder.Services.AddDbContext<ApplicationContext>(options =>
-{
-      options.UseNpgsql(connection, options =>
-      options.EnableRetryOnFailure());
-
-      if (!builder.Environment.IsDevelopment())
-      {
-            options.LogTo((message) => Debug.WriteLine(message), LogLevel.Information)
-            .EnableSensitiveDataLogging().
-            EnableDetailedErrors();
-      }
-});
 
 var app = builder.Build();
+
 app.UseStatusCodePages();
 
 if (app.Environment.IsProduction())
