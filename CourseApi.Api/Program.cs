@@ -12,15 +12,25 @@ using CourseApi.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
-builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes:true);
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes: true);
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
       options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
-builder.Services.AddDistributedMemoryCache();
+if (builder.Environment.IsDevelopment())
+{
+      builder.Services.AddDistributedMemoryCache();
+}
+
 if (builder.Environment.IsProduction())
 {
+      builder.Services.AddStackExchangeRedisCache(options =>
+      {
+            options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
+            options.InstanceName = "CourseApi_cache";
+      });
+
       builder.Services.AddStackExchangeRedisOutputCache(options =>
       {
             options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
@@ -53,7 +63,7 @@ if (app.Environment.IsProduction())
 }
 
 //remove IsProduction in production
-if (app.Environment.IsDevelopment()||app.Environment.IsProduction())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
       app.UseSwagger();
       app.UseSwaggerUI();

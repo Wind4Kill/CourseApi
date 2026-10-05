@@ -1,5 +1,8 @@
 using System.Diagnostics;
 using CourseApi.Application.Interfaces.Repositories;
+using CourseApi.Application.Interfaces.Services;
+using CourseApi.Data.Caching;
+using CourseApi.Data.Persistency;
 using CourseApi.Data.Persistency.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +25,8 @@ namespace CourseApi.Data
             services.AddScoped<ICourseRepository, CourseRepository>();
             services.AddScoped<IAuthorRepository, AuthorRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped(typeof(ICacheService<>), typeof(CacheService<>));
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
             
             return services;
         }
