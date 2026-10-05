@@ -1,9 +1,12 @@
+using System.Runtime.Intrinsics.X86;
 using System;
 using CourseApi.Api.EndpointFilters;
 using CourseApi.Api.FiltrationClasses;
+using CourseApi.Application.DTOs;
 using CourseApi.Application.DTOs.CourseDtos;
 using CourseApi.Application.Filtration.HelpClasses;
 using CourseApi.Application.Interfaces.Services;
+using CourseApi.Application.Reviews;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 
@@ -61,6 +64,15 @@ public static class CourseEndpoints
 
             }).Produces(204).ProducesProblem(statusCode: 404);
 
+            endpointBuilder.MapPost("{id:int}/courses", async (int courseId, ReviewDto reviewDto, ICourseService service, CancellationToken cancellationToken, LinkGenerator links) =>
+            {
+                  GetReviewDto addedReview = await service.AddReviewToCourse(courseId, reviewDto, cancellationToken);
+
+                  string link = $"{links.GetPathByName("GetCourseById", new { id = courseId })}/reviews/{addedReview.ReviewId}";
+                  return Results.Created(link, addedReview);
+            }).Produces<GetReviewDto>().ProducesProblem(statusCode: 404);
+
+            
       }
 
 }

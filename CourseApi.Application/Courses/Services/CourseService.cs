@@ -10,6 +10,7 @@ using CourseApi.Application.DTOs.AuthorDtos;
 using CourseApi.Application.Filtration.HelpClasses;
 using Microsoft.Extensions.Caching.Distributed;
 using CourseApi.Application.Interfaces.Repositories;
+using CourseApi.Application.Reviews;
 
 
 namespace CourseApi.Application.Services;
@@ -22,15 +23,17 @@ public class CourseService : ICourseService
       readonly ICategoryRepository _categoryRepository;
       readonly ICourseRepository _courseRepository;
 
+      readonly IReviewRepository _reviewRepository;
       readonly ICacheService<Course> _cache;
 
       public CourseService(IUnitOfWork unitOfWork, ICourseRepository courseRepository, IAuthorRepository authorRepository,
-      ICategoryRepository categoryRepository, ICacheService<Course> cache)
+      ICategoryRepository categoryRepository, IReviewRepository reviewRepository, ICacheService<Course> cache)
       {
             _unitOfWork = unitOfWork;
             _courseRepository = courseRepository;
             _authorRepository = authorRepository;
             _categoryRepository = categoryRepository;
+            _reviewRepository = reviewRepository;
             _cache = cache;
       }
 
@@ -102,51 +105,51 @@ public class CourseService : ICourseService
 
       public async Task<GetCourseByIdDto?> GetCourseById(int id, CancellationToken cancellationToken)
       {
-
-            await _semaphore.WaitAsync(cancellationToken);
-
-            try
+            Course? requestedCourse = await _cache.TryGetValueAsync(typeof(Course), id, cancellationToken);
+            GetCourseByIdDto mappedCourse;
+            if (requestedCourse is null)
             {
-                  Course? requestedCourse = await _cache.TryGetValueAsync(typeof(Course), id, cancellationToken);
-                  GetCourseByIdDto mappedCourse;
-                  if (requestedCourse is null)
+                  await _semaphore.WaitAsync(cancellationToken);
+                  try
                   {
+
                         requestedCourse = await SearchForCourse(id, cancellationToken);
                         await _cache.AddToCacheAsync(requestedCourse, requestedCourse.CourseId, cancellationToken);
                   }
-
-                  mappedCourse = new GetCourseByIdDto()
+                  finally
                   {
-                        CourseId = requestedCourse.CourseId,
-                        CourseName = requestedCourse.CourseName,
-                        CoursePrice = requestedCourse.CourseDetails.CoursePrice,
-                        CourseDescription = requestedCourse.CourseDetails.CourseDescription,
-                        CourseRating = requestedCourse.AverageRating,
-                        Author = new GetAuthorDto()
-                        {
-                              AuthorId = requestedCourse.Author.AuthorId,
-                              Name = requestedCourse.Author.Name
-                        },
-                        Categories = requestedCourse.Categories.
-                  Select(c => new GetCategoryDto
-                  {
-                        CategoryName = c.Name
-                  }).
-                  ToList(),
-                        Reviews = requestedCourse.Reviews is null ? null :
-                        requestedCourse.Reviews.Select(r => new ReviewDto()
-                        {
-                              ReviewText = r.ReviewText,
-                              ReviewRating = r.ReviewRating
-                        }).ToList()
-                  };
-
-                  return mappedCourse;
+                        _semaphore.Release();
+                  }
             }
-            finally
+
+            mappedCourse = new GetCourseByIdDto()
             {
-                  _semaphore.Release();
-            }
+                  CourseId = requestedCourse.CourseId,
+                  CourseName = requestedCourse.CourseName,
+                  CoursePrice = requestedCourse.CourseDetails.CoursePrice,
+                  CourseDescription = requestedCourse.CourseDetails.CourseDescription,
+                  CourseRating = requestedCourse.AverageRating,
+                  Author = new GetAuthorDto()
+                  {
+                        AuthorId = requestedCourse.Author.AuthorId,
+                        Name = requestedCourse.Author.Name
+                  },
+                  Categories = requestedCourse.Categories.
+            Select(c => new GetCategoryDto
+            {
+                  CategoryName = c.Name
+            }).
+            ToList(),
+                  Reviews = requestedCourse.Reviews is null ? null :
+                  requestedCourse.Reviews.Select(r => new ReviewDto()
+                  {
+                        ReviewText = r.ReviewText,
+                        ReviewRating = r.ReviewRating
+                  }).ToList()
+            };
+
+            return mappedCourse;
+
       }
 
       public async Task RemoveCourse(int id, CancellationToken cancellationToken)
@@ -199,6 +202,29 @@ public class CourseService : ICourseService
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _cache.RemoveFromCacheAsync(typeof(Course), id, cancellationToken);
+      }
+
+      public async Task<GetReviewDto> AddReviewToCourse(int courseId, ReviewDto reviewDto, CancellationToken cancellationToken)
+      {
+            Course requestedCourse = await SearchForCourse(courseId, cancellationToken);
+
+            Review addedReview = new Review()
+            {
+                  CourseId = requestedCourse.CourseId,
+                  ReviewText = reviewDto.ReviewText,
+                  ReviewRating = reviewDto.ReviewRating
+            };
+
+            _reviewRepository.AddReview(addedReview);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            GetReviewDto mappedReview = new GetReviewDto()
+            {
+                  ReviewId = addedReview.CourseId,
+                  ReviewText = addedReview.ReviewText!,
+                  ReviewRating = addedReview.ReviewRating
+            };
+            return mappedReview;
       }
 
       private async Task<Course> SearchForCourse(int id, CancellationToken cancellationToken)
