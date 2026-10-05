@@ -24,9 +24,9 @@ namespace CourseApi.Data.Caching
             await cache.SetStringAsync(key, serializedEntity, options, token);
         }
 
-        public async Task<T?> TryGetValueAsync(T entity, int id, CancellationToken token)
+        public async Task<T?> TryGetValueAsync(Type entityType, int id, CancellationToken token)
         {
-            string key = GetCacheKey(typeof(T), id);
+            string key = GetCacheKey(entityType, id);
             string? cachedSerializedValue = await cache.GetStringAsync(key, token);
             if (cachedSerializedValue is null)
             {
@@ -36,9 +36,9 @@ namespace CourseApi.Data.Caching
             return cachedEntity;
         }
 
-        public async Task RemoveFromCacheAsync(T entity, int id, CancellationToken token)
+        public async Task RemoveFromCacheAsync(Type entityType, int id, CancellationToken token)
         {
-            string key = GetCacheKey(typeof(T), id);
+            string key = GetCacheKey(entityType, id);
             await cache.RemoveAsync(key, token);
         }
 

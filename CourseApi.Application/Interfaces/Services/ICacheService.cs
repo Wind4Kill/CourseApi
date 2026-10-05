@@ -5,8 +5,14 @@ using System.Threading.Tasks;
 
 namespace CourseApi.Application.Interfaces.Services
 {
-    public class ICacheService<T> where T:class
+    public interface ICacheService<T> where T : class
     {
-        
+        Task AddToCacheAsync(T entity, int id, CancellationToken token);
+
+        Task<T?> TryGetValueAsync(Type entityType, int id, CancellationToken token);
+
+        Task RemoveFromCacheAsync(Type entityType, int id, CancellationToken token);
+
+
     }
 }
