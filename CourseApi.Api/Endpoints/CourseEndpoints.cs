@@ -70,7 +70,7 @@ public static class CourseEndpoints
 
                   string link = $"{links.GetPathByName("GetCourseById", new { id = courseId })}/reviews/{addedReview.ReviewId}";
                   return Results.Created(link, addedReview);
-            }).Produces<GetReviewDto>().ProducesProblem(statusCode: 404);
+            }).WithParameterValidation().Produces<GetReviewDto>().ProducesProblem(statusCode: 404);
 
             
       }
