@@ -1,10 +1,11 @@
 ﻿using System.Reflection;
 using CourseApi.Domain.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseApi.Data.Persistency.Repositories;
 
-public class ApplicationContext : DbContext
+public class ApplicationContext : IdentityDbContext<User>
 {
       public DbSet<Course> Courses { get; set; }
       public DbSet<Author> Authors { get; set; }
@@ -18,9 +19,9 @@ public class ApplicationContext : DbContext
             configurationBuilder.Properties<string>().HaveMaxLength(100);
       }
 
-
       protected override void OnModelCreating(ModelBuilder modelBuilder)
       {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
       }
       public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
