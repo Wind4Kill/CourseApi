@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using CourseApi.Application.Interfaces.Repositories;
 using CourseApi.Application.Interfaces.Services;
+using CourseApi.Data.Authentication;
 using CourseApi.Data.Caching;
 using CourseApi.Data.Persistency;
 using CourseApi.Data.Persistency.Repositories;
@@ -38,6 +39,8 @@ namespace CourseApi.Data
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IReviewRepository, ReviewRepository>();
             services.AddScoped(typeof(ICacheService<>), typeof(CacheService<>));
+            services.AddScoped<ITokenProvider, TokenProvider>();
+            services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             
             return services;

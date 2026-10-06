@@ -40,7 +40,7 @@ if (builder.Environment.IsProduction())
 
 builder.Services.AddOutputCache();
 builder.Services.AddProblemDetails();
-builder.Services.AddApplication();
+builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddData(builder.Configuration.GetConnectionString("PostgreConnection")!);
 
 //remove IsProduction in production
