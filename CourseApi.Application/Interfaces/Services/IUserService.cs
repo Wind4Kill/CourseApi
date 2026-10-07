@@ -10,6 +10,6 @@ namespace CourseApi.Application.Interfaces.Services
     public interface IUserService
     {
         Task RegisterUser(UserRegisterDto userCredentials, CancellationToken cancellationToken);
-        Task LoginUser(UserLoginDto userCredentials, CancellationToken cancellationToken);
+        Task<string> LoginUser(UserLoginDto userCredentials, CancellationToken cancellationToken);
     }
 }

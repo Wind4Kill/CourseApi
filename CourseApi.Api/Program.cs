@@ -8,6 +8,7 @@ using FluentValidation;
 using CourseApi.Application;
 using CourseApi.Api.HelpClasses;
 using CourseApi.Data;
+using CourseApi.Api.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,6 +74,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 
 app.AddCourseEndpoints();
 app.AddAuthorEndpoints();
+app.AddUserEndpoints();
 app.UseOutputCache();
 
 
