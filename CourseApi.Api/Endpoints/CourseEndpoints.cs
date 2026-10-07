@@ -9,6 +9,7 @@ using CourseApi.Application.Interfaces.Services;
 using CourseApi.Application.Reviews;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using System.Security.Claims;
 
 namespace CourseApi.Enpoints;
 
@@ -64,9 +65,9 @@ public static class CourseEndpoints
 
             }).Produces(204).ProducesProblem(statusCode: 404);
 
-            endpointBuilder.MapPost("{id:int}/courses", async (int courseId, ReviewDto reviewDto, ICourseService service, CancellationToken cancellationToken, LinkGenerator links) =>
+            endpointBuilder.MapPost("{id:int}/courses", async (int courseId, ReviewDto reviewDto, ICourseService service, CancellationToken cancellationToken, ClaimsPrincipal claims, LinkGenerator links) =>
             {
-                  GetReviewDto addedReview = await service.AddReviewToCourse(courseId, reviewDto, cancellationToken);
+                  GetReviewDto addedReview = await service.AddReviewToCourse(courseId, reviewDto, cancellationToken, claims);
 
                   string link = $"{links.GetPathByName("GetCourseById", new { id = courseId })}/reviews/{addedReview.ReviewId}";
                   return Results.Created(link, addedReview);

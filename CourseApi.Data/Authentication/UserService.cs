@@ -10,13 +10,21 @@ using CourseApi.Application.Interfaces.Services;
 using CourseApi.Data.Persistency.Repositories;
 using CourseApi.Domain.Entities;
 using CourseApi.Domain.Exceptions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseApi.Data.Authentication
 {
-    public class UserService(UserManager<User> userManager, ApplicationContext dbContext, ITokenProvider tokenProvider) : IUserService
+    public class UserService(IHttpContextAccessor httpContext, UserManager<User> userManager, ApplicationContext dbContext, ITokenProvider tokenProvider) : IUserService
     {
+
+        public async Task<User?> FindUser(string email)
+        {
+            User? requestedUser = await userManager.FindByEmailAsync(email);
+            return requestedUser;
+        }
+
         public async Task RegisterUser(UserRegisterDto userCredentials, CancellationToken cancellationToken)
         {
             try
@@ -52,7 +60,7 @@ namespace CourseApi.Data.Authentication
 
         }
 
-        public async Task<string> LoginUser(UserLoginDto userCredential, CancellationToken cancellationToken)
+        public async Task<TokensBearerDto> LoginUser(UserLoginDto userCredential, CancellationToken cancellationToken)
         {
             User? requestedUser = await userManager.FindByEmailAsync(userCredential.Email);
 
@@ -68,17 +76,75 @@ namespace CourseApi.Data.Authentication
                 throw new ValidationException("Provided user credentials are incorrect.");
             }
 
-            List<Claim> claims = (await userManager.GetClaimsAsync(requestedUser)).ToList();
+            TokensBearerDto tokensBearer = await GenerateTokens(requestedUser);
 
-            claims.AddRange([
-                new Claim("Id", $"{requestedUser.Id}"),
-                new Claim("Email", $"{requestedUser.Email}"),
-                new Claim("UserName", $"{requestedUser.UserName}")
-                ]);
+            RefreshToken refreshToken = new()
+            {
+                Expiration = DateTime.UtcNow.AddMinutes(30),
+                Token = tokensBearer.RefreshToken,
+                User = requestedUser
+            };
 
-            string accessToken = tokenProvider.CreateAccessToken(claims);
+            await dbContext.SaveChangesAsync();
 
-            return accessToken;
+            return tokensBearer;
         }
+
+        public async Task<TokensBearerDto> RefreshTokens(string refreshToken)
+        {
+            RefreshToken? requestedToken = await dbContext.RefreshTokens.SingleOrDefaultAsync(rt => rt.Token == refreshToken);
+
+            if (requestedToken is null || requestedToken.Expiration < DateTime.UtcNow)
+            {
+                throw new Exception("Token expired.");
+            }
+
+            await dbContext.Entry<RefreshToken>(requestedToken).Reference(c => c.User).LoadAsync();
+
+            User requestedUser = requestedToken.User;
+
+            if (!CheckUser(requestedToken.UserId))
+            {
+                throw new Exception("This operation is not permitted.");
+            }
+
+            await dbContext.RefreshTokens.Where(rt => rt.UserId == requestedToken.UserId).ExecuteDeleteAsync();
+
+            TokensBearerDto tokensBearer = await GenerateTokens(requestedUser);
+
+            requestedToken = new RefreshToken()
+            {
+                Expiration = DateTime.UtcNow.AddMinutes(30),
+                Token = tokensBearer.RefreshToken,
+                User = requestedUser
+            };
+
+            await dbContext.SaveChangesAsync();
+
+
+            return tokensBearer;
+
+        }
+
+        private async Task<TokensBearerDto> GenerateTokens(User user)
+        {
+            List<Claim> claims = (await userManager.GetClaimsAsync(user)).ToList();
+
+            claims.AddRange([new Claim("Id", user.Id), new Claim("UserName", user.UserName!), new Claim("Email", user.Email!)]);
+
+            string newAccessToken = tokenProvider.CreateAccessToken(claims);
+
+            string newRefreshTokenString = tokenProvider.CreateRefreshToken();
+
+            TokensBearerDto tokensBearer = new()
+            {
+                AccessToken = newAccessToken,
+                RefreshToken = newRefreshTokenString
+            };
+
+            return tokensBearer;
+        }
+
+        private bool CheckUser(string userId) => httpContext.HttpContext!.User.FindFirstValue("Id") == userId;
     }
 }

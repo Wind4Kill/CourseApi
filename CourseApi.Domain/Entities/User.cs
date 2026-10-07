@@ -12,6 +12,6 @@ namespace CourseApi.Domain.Entities
 
         public User() { }
         
-        
+        public ICollection<RefreshToken>? RefreshTokens { get; set; }
     }
 }

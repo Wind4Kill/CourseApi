@@ -1,4 +1,6 @@
 
+using System.Security.Claims;
+using CourseApi.Application.Authentication.DTOs;
 using CourseApi.Application.DTOs;
 using CourseApi.Application.DTOs.CourseDtos;
 using CourseApi.Application.Filtration.HelpClasses;
@@ -13,6 +15,8 @@ public interface ICourseService
       Task<GetCourseByIdDto?> GetCourseById(int id, CancellationToken cancellationToken);
       Task<GetCourseByIdDto> CreateCourse(CreateCourseDto course, CancellationToken cancellationToken);
       Task RemoveCourse(int id, CancellationToken cancellationToken);
-      Task<GetReviewDto> AddReviewToCourse(int courseId, ReviewDto reviewDto, CancellationToken cancellationToken);
+
+      Task<GetReviewDto> AddReviewToCourse(int courseId, ReviewDto reviewDto,
+          CancellationToken cancellationToken, ClaimsPrincipal claims);
       Task UpdateCourse(int id, UpdateCourseDto updatedCourseDto, CancellationToken cancellationToken);
 }

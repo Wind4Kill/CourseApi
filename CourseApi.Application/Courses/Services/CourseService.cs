@@ -11,6 +11,7 @@ using CourseApi.Application.Filtration.HelpClasses;
 using Microsoft.Extensions.Caching.Distributed;
 using CourseApi.Application.Interfaces.Repositories;
 using CourseApi.Application.Reviews;
+using System.Security.Claims;
 
 
 namespace CourseApi.Application.Services;
@@ -24,16 +25,19 @@ public class CourseService : ICourseService
       readonly ICourseRepository _courseRepository;
 
       readonly IReviewRepository _reviewRepository;
+
+      readonly IUserService _userService;
       readonly ICacheService<Course> _cache;
 
       public CourseService(IUnitOfWork unitOfWork, ICourseRepository courseRepository, IAuthorRepository authorRepository,
-      ICategoryRepository categoryRepository, IReviewRepository reviewRepository, ICacheService<Course> cache)
+      ICategoryRepository categoryRepository, IReviewRepository reviewRepository,IUserService userService, ICacheService<Course> cache)
       {
             _unitOfWork = unitOfWork;
             _courseRepository = courseRepository;
             _authorRepository = authorRepository;
             _categoryRepository = categoryRepository;
             _reviewRepository = reviewRepository;
+            _userService = userService;
             _cache = cache;
       }
 
@@ -204,15 +208,24 @@ public class CourseService : ICourseService
             await _cache.RemoveFromCacheAsync(typeof(Course), id, cancellationToken);
       }
 
-      public async Task<GetReviewDto> AddReviewToCourse(int courseId, ReviewDto reviewDto, CancellationToken cancellationToken)
+      public async Task<GetReviewDto> AddReviewToCourse(int courseId, ReviewDto reviewDto,
+      CancellationToken cancellationToken, ClaimsPrincipal claims)
       {
             Course requestedCourse = await SearchForCourse(courseId, cancellationToken);
+
+            User? requestedUser = await _userService.FindUser(claims.FindFirstValue("Email")!);
+
+            if(requestedUser is null)
+            {
+                  throw new UserNotFoundException("User not found.");
+            }
 
             Review addedReview = new Review()
             {
                   CourseId = requestedCourse.CourseId,
                   ReviewText = reviewDto.ReviewText,
-                  ReviewRating = reviewDto.ReviewRating
+                  ReviewRating = reviewDto.ReviewRating,
+                  User = requestedUser
             };
 
             _reviewRepository.AddReview(addedReview);
@@ -238,4 +251,5 @@ public class CourseService : ICourseService
 
             return requestedCourse!;
       }
+
 }

@@ -1,8 +1,11 @@
+using System.Security.Claims;
 using CourseApi.Data.Persistency.Repositories;
 using CourseApi.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace CourseApi;
+
 public static class ProgramExtensions
 {
 
@@ -41,13 +44,49 @@ public static class ProgramExtensions
                                          CoursePrice = 1000
                                    },
                                    Author = new Author() { Name = "Andrew Troelsen" },
-                                   Categories = new List<Category>() { new Category { Name = "C#" } },
-                                   Reviews = new List<Review>() { new Review { ReviewText = "Great course!", ReviewRating = 10.0 } }
+                                   Categories = new List<Category>() { new Category { Name = "C#" } }
                              }
                        );
 
                         await context.SaveChangesAsync();
                   }
             }
+      }
+
+      public static async Task AddAdmin(this WebApplication app)
+      {
+            await using var scope = app.Services.CreateAsyncScope();
+
+            UserManager<User> userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+            DbContext dbContext = scope.ServiceProvider.GetRequiredService<ApplicationContext>();
+
+            var strategy = dbContext.Database.CreateExecutionStrategy();
+
+            await strategy.ExecuteAsync(async () =>
+            {
+                  try
+
+                  {
+                        var transaction = await dbContext.Database.BeginTransactionAsync();
+                        User admin = new(app.Configuration["AdminCredentials:UserName"]!)
+                        {
+                              Email = app.Configuration["AdminCredentials:Email"],
+                        };
+
+                        await userManager.CreateAsync(admin, app.Configuration["AdminCredentials:Password"]!);
+
+                        Claim role = new Claim("Role", "Admin");
+
+                        await userManager.AddClaimAsync(admin, role);
+
+                        await transaction.CommitAsync();
+                  }
+                  catch (Exception)
+                  {
+                        throw;
+                  }
+
+            });
+
       }
 }

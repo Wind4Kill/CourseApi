@@ -6,6 +6,7 @@ using CourseApi.Api.EndpointFilters;
 using CourseApi.Application.Authentication;
 using CourseApi.Application.Authentication.DTOs;
 using CourseApi.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace CourseApi.Api.Endpoints
 {
@@ -19,13 +20,20 @@ namespace CourseApi.Api.Endpoints
             {
                 await service.RegisterUser(userCredentials, cancellationToken);
                 return Results.Ok();
-            }).AddEndpointFilter<UserRegisterValidationFilter>();
+            }).AddEndpointFilter<UserRegisterValidationFilter>().Produces(200).ProducesValidationProblem();
 
             userEndpointsBuilder.MapPost("login", async (UserLoginDto userCredentials, IUserService service, CancellationToken cancellationToken) =>
             {
-                string token = await service.LoginUser(userCredentials, cancellationToken);
+                TokensBearerDto token = await service.LoginUser(userCredentials, cancellationToken);
                 return Results.Ok(token);
-            }).AddEndpointFilter<UserLoginValidationFilter>();
+            }).AddEndpointFilter<UserLoginValidationFilter>().Produces<TokensBearerDto>().ProducesValidationProblem();
+
+            userEndpointsBuilder.MapPost("refresh", async (string refreshToken, IUserService service) =>
+            {
+                TokensBearerDto tokens = await service.RefreshTokens(refreshToken);
+
+                return Results.Ok(tokens);
+            }).Produces<TokensBearerDto>().ProducesValidationProblem();
         }
     }
 }

@@ -1,3 +1,4 @@
+using System.Buffers;
 using CourseApi.Enpoints;
 using System.Diagnostics;
 using CourseApi;
@@ -9,14 +10,38 @@ using CourseApi.Application;
 using CourseApi.Api.HelpClasses;
 using CourseApi.Data;
 using CourseApi.Api.Endpoints;
+using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes: true);
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
       options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
+
+builder.Services.AddAuthentication(options =>
+{
+      options.DefaultAuthenticateScheme = BearerTokenDefaults.AuthenticationScheme;
+      options.DefaultChallengeScheme = BearerTokenDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+      options.TokenValidationParameters = new()
+      {
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecurityKey"]!)),
+            ClockSkew = TimeSpan.Zero
+      };
+});
+
+builder.Services.AddAuthorization(options =>
+{
+      options.AddPolicy("Admin", policy => policy.RequireClaim("UserName", "Admin").RequireClaim("Role", "Admin"));
 });
 
 if (builder.Environment.IsDevelopment())
@@ -56,12 +81,16 @@ if (builder.Environment.IsDevelopment() || builder.Environment.IsProduction())
 var app = builder.Build();
 
 app.UseStatusCodePages();
+await app.AddAdmin();
 
 if (app.Environment.IsProduction())
 {
       app.UseExceptionHandler();
       await app.MigratePendingMigrations();
 }
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 
 //remove IsProduction in production
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
