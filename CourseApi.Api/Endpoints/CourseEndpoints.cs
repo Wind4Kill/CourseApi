@@ -65,7 +65,7 @@ public static class CourseEndpoints
 
             }).Produces(204).ProducesProblem(statusCode: 404).RequireAuthorization("IsAdmin");
 
-            endpointBuilder.MapPost("{id:int}/courses", async (int courseId, ReviewDto reviewDto, ICourseService service, CancellationToken cancellationToken, ClaimsPrincipal claims, LinkGenerator links) =>
+            endpointBuilder.MapPost("{id:int}/reviews", async (int courseId, ReviewDto reviewDto, ICourseService service, CancellationToken cancellationToken, ClaimsPrincipal claims, LinkGenerator links) =>
             {
                   GetReviewDto addedReview = await service.AddReviewToCourse(courseId, reviewDto, cancellationToken, claims);
 

@@ -7,7 +7,7 @@ namespace CourseApi.Application.Authentication
 {
     public class JwtTokenSettings
     {
-        public DateTime Expiration { get; set; }
+        public double Expiration { get; set; }
         public string SecretKey { get; set; } = null!;
     }
 }

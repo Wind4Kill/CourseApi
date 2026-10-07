@@ -13,6 +13,7 @@ using CourseApi.Api.Endpoints;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,15 +27,17 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 
 builder.Services.AddAuthentication(options =>
 {
-      options.DefaultAuthenticateScheme = BearerTokenDefaults.AuthenticationScheme;
-      options.DefaultChallengeScheme = BearerTokenDefaults.AuthenticationScheme;
+      options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+      options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
       options.TokenValidationParameters = new()
       {
             ValidateLifetime = true,
+            ValidateIssuer = false,
+            ValidateAudience = false,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecurityKey"]!)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!)),
             ClockSkew = TimeSpan.Zero
       };
 });

@@ -41,7 +41,13 @@ namespace CourseApi.Data.Authentication
                         Email = userCredentials.Email
                     };
 
-                    await userManager.CreateAsync(createdUser, userCredentials.Password);
+                    var result = await userManager.CreateAsync(createdUser, userCredentials.Password);
+                    if (!result.Succeeded)
+                    {
+                        throw new ValidationException(string.Join(", ", result.Errors.Select(e => e.Description)));
+                    }
+
+                    dbContext.Users.Attach(createdUser);
 
                     List<Claim> userClaims = new List<Claim>
                     {
@@ -78,12 +84,15 @@ namespace CourseApi.Data.Authentication
 
             TokensBearerDto tokensBearer = await GenerateTokens(requestedUser);
 
+
             RefreshToken refreshToken = new()
             {
                 Expiration = DateTime.UtcNow.AddMinutes(30),
                 Token = tokensBearer.RefreshToken,
                 User = requestedUser
             };
+
+            dbContext.RefreshTokens.Add(refreshToken);
 
             await dbContext.SaveChangesAsync();
 
@@ -119,8 +128,9 @@ namespace CourseApi.Data.Authentication
                 User = requestedUser
             };
 
-            await dbContext.SaveChangesAsync();
+            dbContext.RefreshTokens.Add(requestedToken);
 
+            await dbContext.SaveChangesAsync();
 
             return tokensBearer;
 

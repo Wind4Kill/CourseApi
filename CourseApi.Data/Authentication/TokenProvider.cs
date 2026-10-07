@@ -23,7 +23,7 @@ namespace CourseApi.Data.Authentication
             var descriptor = new SecurityTokenDescriptor()
             {
                 Subject = new ClaimsIdentity(userClaims),
-                Expires = DateTime.UtcNow.AddMinutes(60),
+                Expires = DateTime.UtcNow.AddMinutes(options.Value.Expiration),
                 SigningCredentials = signingCredentials
             };
 
@@ -33,7 +33,7 @@ namespace CourseApi.Data.Authentication
 
         public string CreateRefreshToken()
         {
-            string refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+            string refreshToken = Convert.ToHexString(RandomNumberGenerator.GetBytes(32));
             return refreshToken;
         }
     }
