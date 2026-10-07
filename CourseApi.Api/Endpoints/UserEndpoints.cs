@@ -33,7 +33,7 @@ namespace CourseApi.Api.Endpoints
                 TokensBearerDto tokens = await service.RefreshTokens(refreshToken);
 
                 return Results.Ok(tokens);
-            }).Produces<TokensBearerDto>().ProducesValidationProblem();
+            }).Produces<TokensBearerDto>().ProducesValidationProblem().RequireAuthorization();
         }
     }
 }

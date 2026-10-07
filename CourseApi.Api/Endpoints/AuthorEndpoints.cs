@@ -11,7 +11,7 @@ public static class AuthorEndpoints
 {
       public static void AddAuthorEndpoints(this WebApplication app)
       {
-            var endpointBuilder = app.MapGroup("api/authors").WithTags("Authors");
+            var endpointBuilder = app.MapGroup("api/authors").WithTags("Authors").RequireAuthorization("IsAdmin");
 
             endpointBuilder.MapPost("", async (IAuthorService service, CreateAuthorDto authorDto,
              LinkGenerator links, CancellationToken cancellationToken) =>

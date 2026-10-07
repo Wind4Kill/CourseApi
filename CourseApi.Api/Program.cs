@@ -41,7 +41,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-      options.AddPolicy("Admin", policy => policy.RequireClaim("UserName", "Admin").RequireClaim("Role", "Admin"));
+      options.AddPolicy("IsAdmin", policy => policy.RequireClaim("UserName", builder.Configuration["AdminCredentials:UserName"]!).RequireClaim("Role", "Admin"));
 });
 
 if (builder.Environment.IsDevelopment())
