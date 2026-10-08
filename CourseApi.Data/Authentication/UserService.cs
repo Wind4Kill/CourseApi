@@ -27,13 +27,13 @@ namespace CourseApi.Data.Authentication
 
         public async Task RegisterUser(UserRegisterDto userCredentials, CancellationToken cancellationToken)
         {
-            try
+            var strategy = dbContext.Database.CreateExecutionStrategy();
 
+            await strategy.ExecuteAsync(async () =>
             {
-                var strategy = dbContext.Database.CreateExecutionStrategy();
-
-                await strategy.ExecuteAsync(async () =>
+                try
                 {
+
                     using var transaction = await dbContext.Database.BeginTransactionAsync();
 
                     User createdUser = new User(userCredentials.UserName)
@@ -47,22 +47,19 @@ namespace CourseApi.Data.Authentication
                         throw new ValidationException(string.Join(", ", result.Errors.Select(e => e.Description)));
                     }
 
-                    dbContext.Users.Attach(createdUser);
-
                     List<Claim> userClaims = new List<Claim>
                     {
-                    new Claim("Role", "User")
+                            new Claim("Role", "User")
                     };
 
                     await userManager.AddClaimsAsync(createdUser, userClaims);
                     await transaction.CommitAsync();
-                });
-
-            }
-            catch (Exception)
-            {
-                throw;
-            }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            });
 
         }
 

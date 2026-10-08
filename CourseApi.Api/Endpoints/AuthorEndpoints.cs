@@ -36,7 +36,7 @@ public static class AuthorEndpoints
                   return Results.NoContent();
             }).Produces(204);
 
-            endpointBuilder.MapPut("{id:int}", async (int id, IAuthorService service,
+            endpointBuilder.MapPost("{id:int}", async (int id, IAuthorService service,
             CreateCourseDto createdCourseDto, LinkGenerator links, CancellationToken cancellationToken) =>
             {
                   GetCourseByIdDto createdCourse = await service.AddCourseToAuthor(id, createdCourseDto, cancellationToken);

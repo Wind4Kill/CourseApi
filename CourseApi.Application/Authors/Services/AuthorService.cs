@@ -86,6 +86,12 @@ public class AuthorService : IAuthorService
 
       public async Task<GetCourseByIdDto> AddCourseToAuthor(int authorId, CreateCourseDto courseDto, CancellationToken cancellationToken)
       {
+            Author? requestedAuthor = await _authorRepository.GetAuthorById(authorId, cancellationToken);
+
+            if(requestedAuthor is null)
+            {
+                  throw new EntityNotFoundException("Requested author doesn't exist.");
+            }
 
             Course? existingCourse = await _courseRepository.FindCourseByName(courseDto.CourseName, cancellationToken);
 
@@ -102,14 +108,14 @@ public class AuthorService : IAuthorService
                         CourseDescription = courseDto.CourseDescription,
                         CoursePrice = courseDto.CoursePrice
                   },
-                  Author = new Author { AuthorId = authorId },
+                  Author = requestedAuthor,
             };
 
             List<Category>? existedCategories = await _categoryRepository.GetCategoriesByNames(names: courseDto.Categories, cancellationToken);
 
             createdCourse.Categories = await EntityDifferentiator.DifferentiateEntity(dtoNames: courseDto.Categories, existedValues: existedCategories);
 
-            createdCourse = _courseRepository.AddCourse(createdCourse);
+            _courseRepository.AddCourse(createdCourse);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
