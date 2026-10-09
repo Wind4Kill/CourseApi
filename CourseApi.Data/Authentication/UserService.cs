@@ -33,7 +33,6 @@ namespace CourseApi.Data.Authentication
             {
                 try
                 {
-
                     using var transaction = await dbContext.Database.BeginTransactionAsync();
 
                     User createdUser = new User(userCredentials.UserName)

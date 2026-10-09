@@ -40,7 +40,11 @@ public class AuthorService : IAuthorService
             Author createdAuthor = new Author() { Name = authorDto.AuthorName };
             createdAuthor = _authorRepository.CreateAuthor(createdAuthor);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            GetAuthorDto mappedAuthor = new GetAuthorDto() { Name = createdAuthor.Name };
+            GetAuthorDto mappedAuthor = new GetAuthorDto()
+            {
+                  AuthorId = createdAuthor.AuthorId,
+                  Name = createdAuthor.Name
+            };
             return mappedAuthor;
       }
 
@@ -88,7 +92,7 @@ public class AuthorService : IAuthorService
       {
             Author? requestedAuthor = await _authorRepository.GetAuthorById(authorId, cancellationToken);
 
-            if(requestedAuthor is null)
+            if (requestedAuthor is null)
             {
                   throw new EntityNotFoundException("Requested author doesn't exist.");
             }
