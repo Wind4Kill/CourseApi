@@ -14,9 +14,14 @@ using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.UseSerilog((context, configuration) =>
+{
+      configuration.ReadFrom.Configuration(context.Configuration);
+});
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes: true);
@@ -83,8 +88,8 @@ if (builder.Environment.IsDevelopment() || builder.Environment.IsProduction())
 
 var app = builder.Build();
 
+app.UseSerilogRequestLogging();
 app.UseStatusCodePages();
-await app.AddAdmin();
 
 if (app.Environment.IsProduction())
 {
@@ -102,6 +107,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
       app.UseSwaggerUI();
       app.MapHealthChecks("/health");
       await app.SeedData();
+      await app.AddAdmin();
 }
 
 app.AddCourseEndpoints();
