@@ -45,13 +45,13 @@ if (app.Environment.IsProduction())
       };
       forwardedHeadersOptions.KnownIPNetworks.Clear();
       forwardedHeadersOptions.KnownIPNetworks.Clear();
-      
+
       app.UseForwardedHeaders(forwardedHeadersOptions);
       await app.MigratePendingMigrations();
-      app.UseHsts();
+      // app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

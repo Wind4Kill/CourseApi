@@ -98,10 +98,10 @@ public static class ProgramExtensions
 
       public static IServiceCollection AddServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment)
       {
-            services.AddHsts(configureOptions =>
-            {
-                  configureOptions.MaxAge = TimeSpan.FromMinutes(60);
-            });
+            // services.AddHsts(configureOptions =>
+            // {
+            //       configureOptions.MaxAge = TimeSpan.FromMinutes(60);
+            // });
 
             services.AddExceptionHandler<CustomExceptionHandler>();
             services.AddHttpContextAccessor();
