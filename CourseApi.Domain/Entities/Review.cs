@@ -6,6 +6,10 @@ public class Review
 {
       public int ReviewId { get; set; }
 
+      public User User { get; set; } = null!;
+
+      public string UserId { get; set; } = null!;
+
       public string? ReviewText { get; set; }
 
       public double ReviewRating { get; set; }

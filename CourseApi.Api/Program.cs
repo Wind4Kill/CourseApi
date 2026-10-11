@@ -1,3 +1,4 @@
+using System.Buffers;
 using CourseApi.Enpoints;
 using System.Diagnostics;
 using CourseApi;
@@ -8,19 +9,62 @@ using FluentValidation;
 using CourseApi.Application;
 using CourseApi.Api.HelpClasses;
 using CourseApi.Data;
+using CourseApi.Api.Endpoints;
+using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.UseSerilog((context, configuration) =>
+{
+      configuration.ReadFrom.Configuration(context.Configuration);
+});
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
-builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes:true);
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes: true);
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
       options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
 });
 
-builder.Services.AddDistributedMemoryCache();
+builder.Services.AddAuthentication(options =>
+{
+      options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+      options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+      options.TokenValidationParameters = new()
+      {
+            ValidateLifetime = true,
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!)),
+            ClockSkew = TimeSpan.Zero
+      };
+});
+
+builder.Services.AddAuthorization(options =>
+{
+      options.AddPolicy("IsAdmin", policy => policy.RequireClaim("UserName", builder.Configuration["AdminCredentials:UserName"]!).RequireClaim("Role", "Admin"));
+});
+
+if (builder.Environment.IsDevelopment())
+{
+      builder.Services.AddDistributedMemoryCache();
+}
+
 if (builder.Environment.IsProduction())
 {
+      builder.Services.AddStackExchangeRedisCache(options =>
+      {
+            options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
+            options.InstanceName = "CourseApi_cache";
+      });
+
       builder.Services.AddStackExchangeRedisOutputCache(options =>
       {
             options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
@@ -30,7 +74,7 @@ if (builder.Environment.IsProduction())
 
 builder.Services.AddOutputCache();
 builder.Services.AddProblemDetails();
-builder.Services.AddApplication();
+builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddData(builder.Configuration.GetConnectionString("PostgreConnection")!);
 
 //remove IsProduction in production
@@ -44,6 +88,7 @@ if (builder.Environment.IsDevelopment() || builder.Environment.IsProduction())
 
 var app = builder.Build();
 
+app.UseSerilogRequestLogging();
 app.UseStatusCodePages();
 
 if (app.Environment.IsProduction())
@@ -51,18 +96,23 @@ if (app.Environment.IsProduction())
       app.UseExceptionHandler();
       await app.MigratePendingMigrations();
 }
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 
 //remove IsProduction in production
-if (app.Environment.IsDevelopment()||app.Environment.IsProduction())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
       app.UseSwagger();
       app.UseSwaggerUI();
       app.MapHealthChecks("/health");
       await app.SeedData();
+      await app.AddAdmin();
 }
 
 app.AddCourseEndpoints();
 app.AddAuthorEndpoints();
+app.AddUserEndpoints();
 app.UseOutputCache();
 
 

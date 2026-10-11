@@ -10,26 +10,34 @@ using CourseApi.Application.DTOs.AuthorDtos;
 using CourseApi.Application.Filtration.HelpClasses;
 using Microsoft.Extensions.Caching.Distributed;
 using CourseApi.Application.Interfaces.Repositories;
+using CourseApi.Application.Reviews;
+using System.Security.Claims;
 
 
 namespace CourseApi.Application.Services;
 
 public class CourseService : ICourseService
 {
+      readonly IUnitOfWork _unitOfWork;
       readonly static SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
       readonly IAuthorRepository _authorRepository;
-
       readonly ICategoryRepository _categoryRepository;
       readonly ICourseRepository _courseRepository;
 
-      readonly IDistributedCache _cache;
+      readonly IReviewRepository _reviewRepository;
 
-      public CourseService(ICourseRepository courseRepository, IAuthorRepository authorRepository,
-      ICategoryRepository categoryRepository, IDistributedCache cache)
+      readonly IUserService _userService;
+      readonly ICacheService<Course> _cache;
+
+      public CourseService(IUnitOfWork unitOfWork, ICourseRepository courseRepository, IAuthorRepository authorRepository,
+      ICategoryRepository categoryRepository, IReviewRepository reviewRepository,IUserService userService, ICacheService<Course> cache)
       {
+            _unitOfWork = unitOfWork;
             _courseRepository = courseRepository;
             _authorRepository = authorRepository;
             _categoryRepository = categoryRepository;
+            _reviewRepository = reviewRepository;
+            _userService = userService;
             _cache = cache;
       }
 
@@ -59,7 +67,9 @@ public class CourseService : ICourseService
             List<Category>? existedCategories = await _categoryRepository.GetCategoriesByNames(dto.Categories, cancellationToken);
             addedCourse.Categories = await EntityDifferentiator.DifferentiateEntity<Category>(dtoNames: dto.Categories, existedValues: existedCategories);
 
-            addedCourse = await _courseRepository.AddCourse(addedCourse, cancellationToken);
+            addedCourse = _courseRepository.AddCourse(addedCourse);
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             GetCourseByIdDto mappedCourse = new GetCourseByIdDto()
             {
@@ -93,91 +103,69 @@ public class CourseService : ICourseService
                               CoursePrice = c.CourseDetails.CoursePrice,
                               CourseRating = c.AverageRating
                         }).ToList();
-                        
+
             return mappedCourses;
       }
 
       public async Task<GetCourseByIdDto?> GetCourseById(int id, CancellationToken cancellationToken)
       {
-
-            string key = GetKeyString(id);
-
-            string? cachedCourse = await _cache.GetStringAsync(key, cancellationToken);
-
-            if (cachedCourse is not null)
+            Course? requestedCourse = await _cache.TryGetValueAsync(typeof(Course), id, cancellationToken);
+            GetCourseByIdDto mappedCourse;
+            if (requestedCourse is null)
             {
-                  GetCourseByIdDto requestedCourse = JsonSerializer.Deserialize<GetCourseByIdDto>(cachedCourse)!;
-
-                  return requestedCourse;
-
-            }
-            
                   await _semaphore.WaitAsync(cancellationToken);
-
                   try
                   {
-                        cachedCourse = await _cache.GetStringAsync(key, cancellationToken);
-                        if (cachedCourse is not null)
-                        {
-                              GetCourseByIdDto requestedCourse = JsonSerializer.Deserialize<GetCourseByIdDto>(cachedCourse)!;
-                              return requestedCourse;
-                        }
 
-                        Course requested = await SearchForCourse(id, cancellationToken);
-
-
-                        GetCourseByIdDto mappedCourse = new GetCourseByIdDto()
-                        {
-                              CourseId = requested.CourseId,
-                              CourseName = requested.CourseName,
-                              CoursePrice = requested.CourseDetails.CoursePrice,
-                              CourseDescription = requested.CourseDetails.CourseDescription,
-                              CourseRating = requested.AverageRating,
-                              Author = new GetAuthorDto()
-                              {
-                                    AuthorId = requested.Author.AuthorId,
-                                    Name = requested.Author.Name
-                              },
-                              Categories = requested.Categories.
-                        Select(c => new GetCategoryDto
-                        {
-                              CategoryName = c.Name
-                        }).
-                        ToList(),
-                              Reviews = requested.Reviews is null ? null :
-                              requested.Reviews.Select(r => new ReviewDto()
-                              {
-                                    ReviewText = r.ReviewText,
-                                    ReviewRating = r.ReviewRating
-                              }).ToList()
-                        };
-
-                        DistributedCacheEntryOptions options = new DistributedCacheEntryOptions()
-                        {
-                              AbsoluteExpirationRelativeToNow = TimeSpan.FromHours(2),
-                              SlidingExpiration = TimeSpan.FromHours(1)
-                        };
-                        await _cache.SetStringAsync(key, JsonSerializer.Serialize(mappedCourse), options, cancellationToken);
-
-                        return mappedCourse;
+                        requestedCourse = await SearchForCourse(id, cancellationToken);
+                        await _cache.AddToCacheAsync(requestedCourse, requestedCourse.CourseId, cancellationToken);
                   }
                   finally
                   {
                         _semaphore.Release();
                   }
+            }
+
+            mappedCourse = new GetCourseByIdDto()
+            {
+                  CourseId = requestedCourse.CourseId,
+                  CourseName = requestedCourse.CourseName,
+                  CoursePrice = requestedCourse.CourseDetails.CoursePrice,
+                  CourseDescription = requestedCourse.CourseDetails.CourseDescription,
+                  CourseRating = requestedCourse.AverageRating,
+                  Author = new GetAuthorDto()
+                  {
+                        AuthorId = requestedCourse.Author.AuthorId,
+                        Name = requestedCourse.Author.Name
+                  },
+                  Categories = requestedCourse.Categories.
+            Select(c => new GetCategoryDto
+            {
+                  CategoryName = c.Name
+            }).
+            ToList(),
+                  Reviews = requestedCourse.Reviews is null ? null :
+                  requestedCourse.Reviews.Select(r => new ReviewDto()
+                  {
+                        ReviewText = r.ReviewText,
+                        ReviewRating = r.ReviewRating
+                  }).ToList()
+            };
+
+            return mappedCourse;
+
       }
 
       public async Task RemoveCourse(int id, CancellationToken cancellationToken)
       {
-            string key = GetKeyString(id);
             Course requestedCourse = await SearchForCourse(id, cancellationToken);
-            await _courseRepository.RemoveCourse(requestedCourse, cancellationToken);
-            _cache.Remove(key);
+            _courseRepository.RemoveCourse(requestedCourse);
+            await _unitOfWork.SaveChangesAsync();
+            await _cache.RemoveFromCacheAsync(typeof(Course), id, cancellationToken);
       }
 
       public async Task UpdateCourse(int id, UpdateCourseDto updateCourseDto, CancellationToken cancellationToken)
       {
-            string key = GetKeyString(id);
             Course requiredCourse = await SearchForCourse(id, cancellationToken);
 
             if (!string.IsNullOrEmpty(updateCourseDto.CourseName) && !updateCourseDto.CourseName.Equals(requiredCourse.CourseName))
@@ -214,8 +202,42 @@ public class CourseService : ICourseService
                   var existedCategories = await _categoryRepository.GetCategoriesByNames(updateCourseDto.Categories, cancellationToken);
                   requiredCourse.Categories = await EntityDifferentiator.DifferentiateEntity<Category>(updateCourseDto.Categories, existedCategories);
             }
-            await _courseRepository.UpdateCourse(cancellationToken);
-            _cache.Remove(key);
+
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _cache.RemoveFromCacheAsync(typeof(Course), id, cancellationToken);
+      }
+
+      public async Task<GetReviewDto> AddReviewToCourse(int courseId, ReviewDto reviewDto,
+      CancellationToken cancellationToken, ClaimsPrincipal claims)
+      {
+            Course requestedCourse = await SearchForCourse(courseId, cancellationToken);
+
+            User? requestedUser = await _userService.FindUser(claims.FindFirstValue("Email")!);
+
+            if(requestedUser is null)
+            {
+                  throw new UserNotFoundException("User not found.");
+            }
+
+            Review addedReview = new Review()
+            {
+                  CourseId = requestedCourse.CourseId,
+                  ReviewText = reviewDto.ReviewText,
+                  ReviewRating = reviewDto.ReviewRating,
+                  User = requestedUser
+            };
+
+            _reviewRepository.AddReview(addedReview);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            GetReviewDto mappedReview = new GetReviewDto()
+            {
+                  ReviewId = addedReview.CourseId,
+                  ReviewText = addedReview.ReviewText!,
+                  ReviewRating = addedReview.ReviewRating
+            };
+            return mappedReview;
       }
 
       private async Task<Course> SearchForCourse(int id, CancellationToken cancellationToken)
@@ -228,11 +250,6 @@ public class CourseService : ICourseService
             }
 
             return requestedCourse!;
-      }
-
-      private string GetKeyString(int id)
-      {
-            return $"Course:{id}";
       }
 
 }

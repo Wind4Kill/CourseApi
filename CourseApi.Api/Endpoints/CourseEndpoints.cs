@@ -1,11 +1,15 @@
+using System.Runtime.Intrinsics.X86;
 using System;
 using CourseApi.Api.EndpointFilters;
 using CourseApi.Api.FiltrationClasses;
+using CourseApi.Application.DTOs;
 using CourseApi.Application.DTOs.CourseDtos;
 using CourseApi.Application.Filtration.HelpClasses;
 using CourseApi.Application.Interfaces.Services;
+using CourseApi.Application.Reviews;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
+using System.Security.Claims;
 
 namespace CourseApi.Enpoints;
 
@@ -22,7 +26,7 @@ public static class CourseEndpoints
                  string? link = links.GetPathByName("GetCourseById", new { id = course.CourseId });
                  return Results.Created(link, course);
 
-           }).AddEndpointFilter<CreateCourseFilter>().Produces(201);
+           }).AddEndpointFilter<CreateCourseFilter>().Produces(201).RequireAuthorization("IsAdmin");
 
             endpointBuilder.MapGet("", async (ICourseService service, [AsParameters] Filtering options, CancellationToken cancellationToken) =>
             {
@@ -49,7 +53,7 @@ public static class CourseEndpoints
 
                              return Results.NoContent();
 
-                       }).WithParameterValidation().Produces(204).ProducesProblem(statusCode: 404);
+                       }).WithParameterValidation().Produces(204).ProducesProblem(statusCode: 404).RequireAuthorization("IsAdmin");
 
             endpointBuilder.MapDelete("{id:int}", async (int id, ICourseService service,
              IOutputCacheStore store, CancellationToken cancellationToken) =>
@@ -59,8 +63,17 @@ public static class CourseEndpoints
 
                   return Results.NoContent();
 
-            }).Produces(204).ProducesProblem(statusCode: 404);
+            }).Produces(204).ProducesProblem(statusCode: 404).RequireAuthorization("IsAdmin");
 
+            endpointBuilder.MapPost("{id:int}/reviews", async (int courseId, ReviewDto reviewDto, ICourseService service, CancellationToken cancellationToken, ClaimsPrincipal claims, LinkGenerator links) =>
+            {
+                  GetReviewDto addedReview = await service.AddReviewToCourse(courseId, reviewDto, cancellationToken, claims);
+
+                  string link = $"{links.GetPathByName("GetCourseById", new { id = courseId })}/reviews/{addedReview.ReviewId}";
+                  return Results.Created(link, addedReview);
+            }).WithParameterValidation().Produces<GetReviewDto>().ProducesProblem(statusCode: 404).RequireAuthorization();
+
+            
       }
 
 }

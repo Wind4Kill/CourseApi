@@ -12,13 +12,15 @@ namespace CourseApi.Application.Authors.Services;
 
 public class AuthorService : IAuthorService
 {
+      readonly IUnitOfWork _unitOfWork;
       readonly IAuthorRepository _authorRepository;
       readonly ICourseRepository _courseRepository;
 
       readonly ICategoryRepository _categoryRepository;
 
-      public AuthorService(IAuthorRepository authorRepository, ICourseRepository courseRepository, ICategoryRepository categoryRepository)
+      public AuthorService(IUnitOfWork unitOfWork, IAuthorRepository authorRepository, ICourseRepository courseRepository, ICategoryRepository categoryRepository)
       {
+            _unitOfWork = unitOfWork;
             _authorRepository = authorRepository;
             _courseRepository = courseRepository;
             _categoryRepository = categoryRepository;
@@ -36,8 +38,13 @@ public class AuthorService : IAuthorService
             }
 
             Author createdAuthor = new Author() { Name = authorDto.AuthorName };
-            createdAuthor = await _authorRepository.CreateAuthor(createdAuthor, cancellationToken);
-            GetAuthorDto mappedAuthor = new GetAuthorDto() { Name = createdAuthor.Name };
+            createdAuthor = _authorRepository.CreateAuthor(createdAuthor);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            GetAuthorDto mappedAuthor = new GetAuthorDto()
+            {
+                  AuthorId = createdAuthor.AuthorId,
+                  Name = createdAuthor.Name
+            };
             return mappedAuthor;
       }
 
@@ -77,11 +84,18 @@ public class AuthorService : IAuthorService
             {
                   throw new EntityNotFoundException($"Author with {id} ID hasn't been found");
             }
-            await _authorRepository.DeleteAuthor(author, cancellationToken);
+            _authorRepository.DeleteAuthor(author);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
       }
 
       public async Task<GetCourseByIdDto> AddCourseToAuthor(int authorId, CreateCourseDto courseDto, CancellationToken cancellationToken)
       {
+            Author? requestedAuthor = await _authorRepository.GetAuthorById(authorId, cancellationToken);
+
+            if (requestedAuthor is null)
+            {
+                  throw new EntityNotFoundException("Requested author doesn't exist.");
+            }
 
             Course? existingCourse = await _courseRepository.FindCourseByName(courseDto.CourseName, cancellationToken);
 
@@ -98,14 +112,16 @@ public class AuthorService : IAuthorService
                         CourseDescription = courseDto.CourseDescription,
                         CoursePrice = courseDto.CoursePrice
                   },
-                  Author = new Author { AuthorId = authorId },
+                  Author = requestedAuthor,
             };
 
             List<Category>? existedCategories = await _categoryRepository.GetCategoriesByNames(names: courseDto.Categories, cancellationToken);
 
             createdCourse.Categories = await EntityDifferentiator.DifferentiateEntity(dtoNames: courseDto.Categories, existedValues: existedCategories);
 
-            createdCourse = await _courseRepository.AddCourse(createdCourse, cancellationToken);
+            _courseRepository.AddCourse(createdCourse);
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             GetCourseByIdDto mappedCourse = new GetCourseByIdDto()
             {

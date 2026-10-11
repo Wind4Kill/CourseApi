@@ -6,6 +6,12 @@ namespace CourseApi.Api.HelpClasses
 {
     public class CustomExceptionHandler : IExceptionHandler
     {
+        readonly ILogger _logger;
+        public CustomExceptionHandler(ILoggerFactory loggerFactory)
+        {
+           _logger = loggerFactory.CreateLogger("Exception handler");
+        }
+        
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
         {
             var (statusCode, message) = exception switch
@@ -24,6 +30,7 @@ namespace CourseApi.Api.HelpClasses
 
             httpContext.Response.StatusCode = statusCode;
             await httpContext.Response.WriteAsJsonAsync(details, cancellationToken);
+            _logger.LogError(exception, message);
 
             return true;
         }

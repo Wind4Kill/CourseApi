@@ -16,20 +16,18 @@ public class CourseRepository : ICourseRepository
       {
             _context = context;
       }
-      public async Task<Course> AddCourse(Course addedCourse, CancellationToken cancellationToken)
+      public Course AddCourse(Course addedCourse)
       {
             _context.Add(addedCourse);
-            await _context.SaveChangesAsync(cancellationToken);
             return addedCourse;
       }
 
       public async Task<List<Course>> GetCourses(SortFilterOptions filterOptions, CancellationToken cancellationToken)
       {
-            IQueryable<Course> sortedCourses = SortCourses(_context.Courses.Include(c=>c.Reviews).AsNoTracking(), filterOptions.Sorting);
+            IQueryable<Course> sortedCourses = SortCourses(_context.Courses.Include(c => c.Reviews).AsNoTracking(), filterOptions.Sorting);
             IQueryable<Course> filteredCourses = FilterCourses(sortedCourses, filterOptions.Filter, filterOptions.FilterValue);
             IQueryable<Course> paginatedCourses = PaginatePage(filteredCourses, filterOptions.PageNum);
             List<Course> requestedCourses = await paginatedCourses.ToListAsync(cancellationToken);
-
 
             return requestedCourses;
       }
@@ -45,47 +43,10 @@ public class CourseRepository : ICourseRepository
             return course;
       }
 
-      public async Task RemoveCourse(Course course, CancellationToken cancellationToken)
+      public void RemoveCourse(Course course)
       {
             course.IsDeleted = true;
-            await _context.SaveChangesAsync(cancellationToken);
       }
-
-      public async Task UpdateCourse(CancellationToken cancellationToken)
-      {
-            bool isSaved = false;
-
-            while (!isSaved)
-            {
-                  try
-                  {
-                        await _context.SaveChangesAsync(cancellationToken);
-                        isSaved = true;
-                  }
-                  catch (DbUpdateConcurrencyException ex)
-                  {
-                        foreach (var entry in ex.Entries)
-                        {
-                              if (entry.Entity is Course)
-                              {
-                                    var databaseValues = await entry.GetDatabaseValuesAsync();
-
-                                    if (databaseValues is null)
-                                    {
-                                          throw new InvalidOperationException("Entity has been deleted by another user.");
-                                    }
-
-                                    entry.OriginalValues.SetValues(databaseValues);
-                              }
-                              else
-                              {
-                                    throw new NotSupportedException("Cocurrency conflict can't be resolved." + entry.Metadata.Name);
-                              }
-                        }
-                  }
-            }
-      }
-
       public async Task<Course?> FindCourseByName(string name, CancellationToken cancellationToken)
       {
             Course? requiredCourse = await _context.Courses

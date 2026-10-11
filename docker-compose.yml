@@ -7,6 +7,11 @@ services:
     environment:
       - ConnectionStrings__PostgreConnection=${DB_CONNECTION}
       - ConnectionStrings__RedisConnection=${REDIS_CONNECTION}
+      - JwtSettings__Expiration=${JWTSETTINGS_EXPIRATION}
+      - JwtSettings__SecretKey=${JWTSETTINGS_SECRETKEY}
+      - AdminCredentials__UserName=${ADMINCREDENTIALS_USERNAME}
+      - AdminCredentials__Email=${ADMINCREDENTIALS_EMAIL}
+      - AdminCredentials__Password=${ADMINCREDENTIALS_PASSWORD}
     depends_on:
       db:
         condition: service_healthy
@@ -38,6 +43,15 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+  seq:
+    image: datalust/seq:latest
+    container_name: seq
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_NOAUTHENTICATION=True
+    ports:
+      - 5341:5341
+      - 8081:80
 
 volumes:
   postgres_data:
