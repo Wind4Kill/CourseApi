@@ -18,72 +18,15 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddServices(builder.Configuration, builder.Environment);
+
 builder.Host.UseSerilog((context, configuration) =>
 {
       configuration.ReadFrom.Configuration(context.Configuration);
 });
-builder.Services.AddExceptionHandler<CustomExceptionHandler>();
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes: true);
-builder.Services.ConfigureHttpJsonOptions(options =>
-{
-      options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-});
 
-builder.Services.AddAuthentication(options =>
-{
-      options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-      options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-      options.TokenValidationParameters = new()
-      {
-            ValidateLifetime = true,
-            ValidateIssuer = false,
-            ValidateAudience = false,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]!)),
-            ClockSkew = TimeSpan.Zero
-      };
-});
-
-builder.Services.AddAuthorization(options =>
-{
-      options.AddPolicy("IsAdmin", policy => policy.RequireClaim("UserName", builder.Configuration["AdminCredentials:UserName"]!).RequireClaim("Role", "Admin"));
-});
-
-if (builder.Environment.IsDevelopment())
-{
-      builder.Services.AddDistributedMemoryCache();
-}
-
-if (builder.Environment.IsProduction())
-{
-      builder.Services.AddStackExchangeRedisCache(options =>
-      {
-            options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
-            options.InstanceName = "CourseApi_cache";
-      });
-
-      builder.Services.AddStackExchangeRedisOutputCache(options =>
-      {
-            options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
-            options.InstanceName = "CourseApi_cache";
-      });
-}
-
-builder.Services.AddOutputCache();
-builder.Services.AddProblemDetails();
 builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddData(builder.Configuration.GetConnectionString("PostgreConnection")!);
-
-//remove IsProduction in production
-if (builder.Environment.IsDevelopment() || builder.Environment.IsProduction())
-{
-      builder.Services.AddEndpointsApiExplorer();
-      builder.Services.AddSwaggerGen();
-      builder.Services.AddHealthChecks();
-}
 
 
 var app = builder.Build();
@@ -95,7 +38,10 @@ if (app.Environment.IsProduction())
 {
       app.UseExceptionHandler();
       await app.MigratePendingMigrations();
+      app.UseHsts();
 }
+
+app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
