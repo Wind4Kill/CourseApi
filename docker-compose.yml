@@ -52,8 +52,11 @@ services:
     ports:
       - 5341:5341
       - 8081:80
+    volumes:
+      - seq_data:/data
 
 volumes:
   postgres_data:
   redis_data:
+  seq_data:
 

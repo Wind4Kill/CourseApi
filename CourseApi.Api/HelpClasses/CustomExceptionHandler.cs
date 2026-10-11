@@ -30,7 +30,7 @@ namespace CourseApi.Api.HelpClasses
 
             httpContext.Response.StatusCode = statusCode;
             await httpContext.Response.WriteAsJsonAsync(details, cancellationToken);
-            _logger.LogError(exception, message);
+            _logger.LogError(exception, message: "{ErrorMessage}", message);
 
             return true;
         }
