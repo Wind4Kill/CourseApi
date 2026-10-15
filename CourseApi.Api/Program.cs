@@ -42,7 +42,10 @@ if (app.Environment.IsProduction())
       {
             ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor |
               Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
+
       };
+      forwardedHeadersOptions.KnownIPNetworks.Clear();
+      forwardedHeadersOptions.KnownProxies.Clear();
       app.UseForwardedHeaders(forwardedHeadersOptions);
       await app.MigratePendingMigrations();
       // app.UseHsts();
