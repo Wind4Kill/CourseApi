@@ -43,8 +43,6 @@ if (app.Environment.IsProduction())
               Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
 
       };
-      forwardedHeadersOptions.KnownIPNetworks.Clear();
-      forwardedHeadersOptions.KnownIPNetworks.Clear();
 
       app.UseForwardedHeaders(forwardedHeadersOptions);
       await app.MigratePendingMigrations();
