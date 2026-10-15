@@ -44,8 +44,8 @@ if (app.Environment.IsProduction())
               Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
 
       };
-      forwardedHeadersOptions.KnownIPNetworks.Clear();
-      forwardedHeadersOptions.KnownProxies.Clear();
+      // forwardedHeadersOptions.KnownIPNetworks.Clear();
+      // forwardedHeadersOptions.KnownProxies.Clear();
       app.UseForwardedHeaders(forwardedHeadersOptions);
       await app.MigratePendingMigrations();
       // app.UseHsts();
