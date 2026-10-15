@@ -37,13 +37,12 @@ app.UseStatusCodePages();
 if (app.Environment.IsProduction())
 {
       app.UseExceptionHandler();
+
       var forwardedHeadersOptions = new ForwardedHeadersOptions()
       {
             ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor |
               Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
-
       };
-
       app.UseForwardedHeaders(forwardedHeadersOptions);
       await app.MigratePendingMigrations();
       // app.UseHsts();
