@@ -26,7 +26,7 @@ builder.Host.UseSerilog((context, configuration) =>
 });
 
 builder.Services.AddApplication(builder.Configuration);
-builder.Services.AddData(builder.Configuration.GetConnectionString("PostgreConnection")!);
+builder.Services.AddData(builder.Configuration.GetConnectionString("NeonPostgreConnection")!);
 
 
 var app = builder.Build();

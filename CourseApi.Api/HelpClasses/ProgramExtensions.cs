@@ -133,25 +133,23 @@ public static class ProgramExtensions
                   options.AddPolicy("IsAdmin", policy => policy.RequireClaim("UserName", configuration["AdminCredentials:UserName"]!).RequireClaim("Role", "Admin"));
             });
 
-            if (environment.IsDevelopment())
-            {
-                  services.AddDistributedMemoryCache();
-            }
+            // if (environment.IsDevelopment())
+            // {
+            //       services.AddDistributedMemoryCache();
+            // }
 
-            if (environment.IsProduction())
-            {
-                  services.AddStackExchangeRedisCache(options =>
-                  {
-                        options.Configuration = configuration.GetConnectionString("RedisConnection");
-                        options.InstanceName = "CourseApi_cache";
-                  });
 
-                  services.AddStackExchangeRedisOutputCache(options =>
-                  {
-                        options.Configuration = configuration.GetConnectionString("RedisConnection");
-                        options.InstanceName = "CourseApi_cache";
-                  });
-            }
+            services.AddStackExchangeRedisCache(options =>
+            {
+                  options.Configuration = configuration.GetConnectionString("RedisConnection");
+                  options.InstanceName = "CourseApi_cache";
+            });
+
+            services.AddStackExchangeRedisOutputCache(options =>
+            {
+                  options.Configuration = configuration.GetConnectionString("RedisConnection");
+                  options.InstanceName = "CourseApi_cache";
+            });
 
             services.AddOutputCache();
             services.AddProblemDetails();
